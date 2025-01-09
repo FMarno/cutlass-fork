@@ -275,7 +275,126 @@ struct FusionCallbacks<
   using Impl::Impl;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<
+  class CtaTileShapeMNK,
+  class StrideAux,
+  class CopyOpG2R,
+  template <class> class ActivationFn,
+  class ElementOutput,
+  class ElementCompute,
+  class ElementAux = ElementOutput,
+  class ElementBias = ElementOutput,
+  class ElementSource = ElementOutput,
+  class ElementScalar = ElementCompute,
+  int AlignmentBias = 128 / sizeof_bits_v<ElementBias>,
+  FloatRoundStyle RoundStyle = FloatRoundStyle::round_to_nearest
+>
+using XeLinCombDeEltActDePerRowBias =
+  Sm90EVT<Sm90Compute<cutlass::epilogue::thread::Identity, ElementOutput, ElementCompute, RoundStyle>, // Identity for final conversion
+    Sm90EVT<Sm90ColReduction<plus, plus, plus, 0, CtaTileShapeMNK,
+                             ElementBias, ElementCompute, RoundStyle, Stride<_1,_0,int64_t>, AlignmentBias>,
+      XeLinCombDeEltAct<StrideAux, CopyOpG2R, ActivationFn,
+                          ElementCompute, ElementCompute, ElementAux, ElementSource, ElementScalar, RoundStyle>
+    >
+  >;
+
+template <
+  class GmemLayoutTagAux,
+  template <class> class ActivationFn,
+  class ElementOutput_,
+  class ElementCompute_,
+  class ElementAux,
+  class ElementBias,
+  class ElementSource,
+  class ElementScalar,
+  int AlignmentAux,
+  int AlignmentBias,
+  FloatRoundStyle RoundStyle,
+  class CtaTileShapeMNK,
+  class EpilogueTile,
+  class CopyOpG2R
+>
+struct FusionCallbacks<
+    epilogue::IntelPVCEpilogue,
+    fusion::LinCombDeEltActDePerRowBias<
+      GmemLayoutTagAux, ActivationFn, ElementOutput_, ElementCompute_,
+      ElementAux, ElementBias, ElementSource, ElementScalar, AlignmentAux, AlignmentBias, RoundStyle
+    >,
+    CtaTileShapeMNK,
+    EpilogueTile,
+    CopyOpG2R
+> : XeLinCombDeEltActDePerRowBias<
+      CtaTileShapeMNK, cutlass::gemm::TagToStrideC_t<GmemLayoutTagAux>, CopyOpG2R, ActivationFn, ElementOutput_, ElementCompute_, ElementAux,
+      ElementBias, ElementSource, ElementScalar, AlignmentBias, RoundStyle
+    > {
+
+  using ElementOutput = ElementOutput_;
+  using ElementCompute = ElementCompute_;
+
+  using Impl =
+    XeLinCombDeEltActDePerRowBias<
+      CtaTileShapeMNK, cutlass::gemm::TagToStrideC_t<GmemLayoutTagAux>, CopyOpG2R, ActivationFn,
+      ElementOutput, ElementCompute, ElementAux, ElementBias, ElementSource, ElementScalar,
+      AlignmentBias, RoundStyle
+    >;
+  using Operation =
+    fusion::LinCombDeEltActDePerRowBias<
+      GmemLayoutTagAux, ActivationFn, ElementOutput, ElementCompute,
+      ElementAux, ElementBias, ElementSource, ElementScalar, AlignmentAux, AlignmentBias, RoundStyle
+    >;
+
+  struct Arguments {
+    ElementScalar alpha = ElementScalar(1);
+    ElementScalar beta = ElementScalar(0);
+    ElementScalar const* alpha_ptr = nullptr;
+    ElementScalar const* beta_ptr = nullptr;
+
+    using StrideAlpha = Stride<_0,_0,int64_t>;
+    using StrideBeta  = Stride<_0,_0,int64_t>;
+    StrideAlpha dAlpha = {_0{}, _0{}, 0};
+    StrideBeta  dBeta  = {_0{}, _0{}, 0};
+
+    using ActivationArguments = typename Sm90Compute<ActivationFn, ElementOutput, ElementCompute, RoundStyle>::Arguments;
+    ActivationArguments activation = ActivationArguments();
+
+    using StrideAux = cutlass::gemm::TagToStrideC_t<GmemLayoutTagAux>;
+    ElementAux const* aux_ptr = nullptr;
+    StrideAux dAux = {};
+
+    using StrideBias = Stride<_1,_0,int64_t>;
+    ElementBias* dbias_ptr = nullptr;
+    StrideBias dDbias = {};
+
+    operator typename Impl::Arguments() const {
+      return
+      {   // unary op : identity/convert
+        {    // unary op : reduce(activation(beta * C + (alpha * acc), aux))
+          {    // binary op : activation(beta * C + (alpha * acc), aux)
+            {                  // ternary op : beta * C + (alpha * acc)
+              {{beta}, {beta_ptr}, {dBeta}}, // leaf args : beta
+              {},                   // leaf args : C
+              {                     // binary op : alpha * acc
+                {{alpha}, {alpha_ptr}, {dAlpha}}, // leaf args : alpha
+                {},                     // leaf args : acc
+                {}                  // binary args : multiplies
+              },                    // end binary op
+              {}               // ternary args : multiply_add
+            },                 // end ternary op
+            {aux_ptr, ElementAux(0), dAux}, // leaf args : aux
+            activation // binary args : activation
+          },   // end binary op
+          {dbias_ptr, ElementCompute(0), dDbias} // unary args : reduce
+        },   // end unary op
+        {} // unary args : identity/convert
+      };   // end unary op
+    }
+  };
+
+  // Ctor inheritance
+  using Impl::Impl;
+};
 } // namespace cutlass::epilogue::fusion
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

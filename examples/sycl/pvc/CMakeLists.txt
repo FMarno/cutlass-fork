@@ -48,6 +48,11 @@ cutlass_example_add_executable(
 )
 
 cutlass_example_add_executable(
+  pvc_gemm_with_epilogue_lincombdeeltactdeperrowbias
+  pvc_gemm_with_epilogue_lincombdeeltactdeperrowbias.cpp
+)
+
+cutlass_example_add_executable(
   pvc_collective_builder
   pvc_collective_builder.cpp
 )
