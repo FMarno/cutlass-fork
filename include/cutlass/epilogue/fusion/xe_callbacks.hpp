@@ -295,7 +295,7 @@ using XeLinCombDeEltActDePerRowBias =
   Sm90EVT<Sm90Compute<cutlass::epilogue::thread::Identity, ElementOutput, ElementCompute, RoundStyle>, // Identity for final conversion
     Sm90EVT<Sm90ColReduction<plus, plus, plus, 0, CtaTileShapeMNK,
                              ElementBias, ElementCompute, RoundStyle, Stride<_1,_0,int64_t>, AlignmentBias>,
-      XeLinCombDeEltAct<StrideAux, CopyOpG2R, ActivationFn,
+      XeLinCombDeEltAct<CtaTileShapeMNK, StrideAux, CopyOpG2R, ActivationFn,
                           ElementCompute, ElementCompute, ElementAux, ElementSource, ElementScalar, RoundStyle>
     >
   >;
