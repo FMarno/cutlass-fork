@@ -34,3 +34,8 @@ endif()
 if (CUTLASS_ENABLE_SYCL)
   add_subdirectory(device_agnostic)
 endif()
+
+cutlass_example_add_executable(
+  cute_test
+  cute_test.cpp
+)
