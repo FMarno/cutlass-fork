@@ -38,8 +38,10 @@
 
 #if defined(CUTLASS_ENABLE_SYCL)
 #include <sycl/sycl.hpp>
+#if !defined(__CUDA__)
 #include <syclcompat.hpp>
-#endif
+#endif // !defined(__CUDA__)
+#endif // defined(CUTLASS_ENABLE_SYCL)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +55,12 @@ static const int NumThreadsPerQuad = 4;
 static const int NumThreadsPerQuadPair = NumThreadsPerQuad * 2;
 static constexpr int MaxNumThreadsPerBlock = 1024;
 
+}
+
+std::ostream& operator<<(std::ostream &os, const dim3 &dims)
+{
+    os << dims.x << ", " << dims.y << ", " << dims.z;
+    return os;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,7 +337,7 @@ T shfl_xor_sync(
  * with CUDA definitions. When using CUDA, only the global definitions are available. This way we don't have to modify
  * the codebase, and we can rely on the compiler to select the right definition in both cases.
  */
-#if defined(CUTLASS_ENABLE_SYCL)
+#if defined(CUTLASS_ENABLE_SYCL) && !defined(__CUDA__)
 
 namespace cutlass {
 
@@ -449,6 +457,6 @@ cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
 namespace cute {
   using dim3 = syclcompat::dim3;
 }
-#endif
+#endif // !defined(__CUDA__)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

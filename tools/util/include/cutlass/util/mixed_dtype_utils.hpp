@@ -178,7 +178,14 @@ static void dequantize(DequantizedElement* dq_buffer,
   const auto blocks_y = batches;
 
   dim3 blocks(blocks_x, blocks_y, 1);
+#if defined(CUTLASS_ENABLE_SYCL)
+  syclcompat::dim3 sycl_grid{blocks.x, blocks.y, blocks.z};
+  syclcompat::launch<dequantize_kernel<QuantizedElement, DequantizedElement, OperandLayout, ElementScale, ElementZero, decltype(scale_layout_bcast), decltype(thr_layout)>>(sycl_grid, tpb,
+      dq_buffer, q_buffer, operand_layout, scale_buffer, zero_buffer, scale_layout_bcast, thr_layout);
+
+#else
   dequantize_kernel<<<blocks, tpb, 0, stream>>>(dq_buffer, q_buffer, operand_layout, scale_buffer, zero_buffer, scale_layout_bcast, thr_layout);
+#endif
   CUDA_CHECK(cudaStreamSynchronize(stream));
 }
 
@@ -445,7 +452,18 @@ void reorder_tensor(
   auto tiled_D = group_modes<3,rank_v<LayoutDst>>(tiled_divide(D, TileShape{}));
   dim3 blocks{unsigned(size<1>(tiled_D)), 1u, unsigned(size<3>(tiled_D))};
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  syclcompat::dim3 sycl_grid{blocks.x, blocks.y, blocks.z};
+  syclcompat::launch<reorder_tensor_kernel<
+    TileShape,
+    typename decltype(S)::engine_type, typename decltype(S)::layout_type,
+    typename decltype(D)::engine_type, typename decltype(D)::layout_type,
+    decltype(tiled_copy)
+    >>(sycl_grid, NumThreads,
+      S, D, tiled_copy);
+#else
   reorder_tensor_kernel<TileShape><<<blocks, NumThreads>>>(S, D, tiled_copy);
+#endif
   CUDA_CHECK(cudaDeviceSynchronize());
 }
 

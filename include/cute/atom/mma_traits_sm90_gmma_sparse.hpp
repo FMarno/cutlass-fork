@@ -197,12 +197,22 @@ mma_unpack(MMA_Traits<MMAOp>   const& traits,
 
   CUTE_STATIC_ASSERT_V(size(rC) == Int<RegNumC>{});
 
+
+#if defined (CUTLASS_ENABLE_SYCL)
+  detail::explode_mma<MMAOp>(
+                  rA, make_int_sequence<RegNumA>{},
+                  rB, make_int_sequence<RegNumB>{},
+                  rC, make_int_sequence<RegNumC>{},
+                  rE, make_int_sequence<RegNumE>{},
+                  &(traits.accumulate_), seq<0>{});
+#else
   detail::explode(MMAOp::fma,
                   rA, make_int_sequence<RegNumA>{},
                   rB, make_int_sequence<RegNumB>{},
                   rC, make_int_sequence<RegNumC>{},
                   rE, make_int_sequence<RegNumE>{},
                   &(traits.accumulate_), seq<0>{});
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

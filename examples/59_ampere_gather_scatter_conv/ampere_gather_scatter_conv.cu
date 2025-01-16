@@ -76,7 +76,12 @@ template<class Operator, class FilterTensor, class ActivationTensor, class Outpu
 __global__
 __launch_bounds__(Operator::MaxThreadsPerBlock, Operator::MinBlocksPerMultiprocessor)
 void kernel_entrypoint(FilterTensor mFlt, ActivationTensor mAct, OutputTensor mOut) {
+  // TODO(codeplay): if branch maybe not needed
+#if defined(CUTLASS_ENABLE_SYCL)
+  char* smem_buf = static_cast<char*>(sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
+#else
   extern __shared__ char smem_buf[];
+#endif
   Operator op;
   op(mFlt, mAct, mOut, smem_buf);
 }
@@ -147,9 +152,25 @@ int ampere_dense_conv_fprop(
 
   CHECK_CUDA(cudaEventRecord(start));
   for (int i = 0; i < num_iterations; ++i) {
+#if defined(CUTLASS_ENABLE_SYCL)
+    syclcompat::experimental::launch_properties l_props{
+      sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size),
+    };
+    syclcompat::experimental::kernel_properties k_props(
+      sycl::ext::oneapi::experimental::max_linear_work_group_size<AmpereUnpredicatedFprop::MaxThreadsPerBlock>
+    );
+    const syclcompat::dim3 sycl_grid{lauch_grid.x, lauch_grid.y, lauch_grid.z};
+    const syclcompat::dim3 sycl_block{AmpereUnpredicatedFprop::MaxThreadsPerBlock, 1, 1};
+
+    syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props, k_props};
+    syclcompat::experimental::launch<kernel_entrypoint<
+      AmpereUnpredicatedFprop, decltype(mFilter), decltype(mXformedAct), decltype(mOutput)
+      >>(policy, mFilter, mXformedAct, mOutput);
+#else
     kernel_entrypoint<AmpereUnpredicatedFprop, decltype(mFilter), decltype(mXformedAct), decltype(mOutput)>
       <<<lauch_grid, AmpereUnpredicatedFprop::MaxThreadsPerBlock, smem_size>>>(
         mFilter, mXformedAct, mOutput);
+#endif
   }
   CHECK_CUDA(cudaEventRecord(stop));
   CHECK_CUDA(cudaEventSynchronize(stop));
@@ -263,9 +284,23 @@ int ampere_gather_scatter_conv_fprop(
   CHECK_CUDA(cudaEventCreate(&stop));
   CHECK_CUDA(cudaEventRecord(start));
   for (int i = 0; i < num_iterations; ++i) {
+#if defined(CUTLASS_ENABLE_SYCL)
+    syclcompat::experimental::launch_properties l_props{
+          sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size)
+    };
+    syclcompat::experimental::kernel_properties k_props(
+      sycl::ext::oneapi::experimental::max_linear_work_group_size<AmpereUnpredicatedFprop::MaxThreadsPerBlock>
+    );
+    const syclcompat::dim3 sycl_grid{lauch_grid.x, lauch_grid.y, lauch_grid.z};
+    const syclcompat::dim3 sycl_block{AmpereUnpredicatedFprop::MaxThreadsPerBlock, 1, 1};
+    syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props, k_props};
+    syclcompat::experimental::launch<kernel_entrypoint<AmpereUnpredicatedFprop, decltype(mFilter), decltype(mXformedActGather), decltype(mOutputScatter)>>(
+        policy, mFilter, mXformedActGather, mOutputScatter);
+#else
     kernel_entrypoint<AmpereUnpredicatedFprop, decltype(mFilter), decltype(mXformedActGather), decltype(mOutputScatter)>
       <<<lauch_grid, AmpereUnpredicatedFprop::MaxThreadsPerBlock, smem_size>>>(
           mFilter, mXformedActGather, mOutputScatter);
+#endif
   }
   CHECK_CUDA(cudaEventRecord(stop));
   CHECK_CUDA(cudaEventSynchronize(stop));
