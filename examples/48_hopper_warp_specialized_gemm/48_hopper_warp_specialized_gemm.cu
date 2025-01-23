@@ -338,6 +338,14 @@ void initialize(const Options &options) {
   initialize_block(block_C, seed + 2021);
 }
 
+void deinitialize() {
+  block_A.reset();
+  block_B.reset();
+  block_C.reset();
+  block_D.reset();
+  block_ref_D.reset();
+}
+
 /// Populates a Gemm::Arguments structure from the given commandline options
 typename Gemm::Arguments args_from_options(const Options &options)
 {
@@ -385,7 +393,11 @@ bool verify(const Options &options) {
     ref_D);
 
   // Wait for kernel to finish
+#if defined(CUTLASS_ENABLE_SYCL)
+  syclcompat::wait_and_throw();
+#else
   CUDA_CHECK(cudaDeviceSynchronize());
+#endif
 
   // Check if output from CUTLASS kernel and reference kernel are equal or not
   bool passed = cutlass::reference::device::BlockCompareEqual(block_ref_D.get(), block_D.get(), block_D.size());
@@ -397,6 +409,8 @@ bool verify(const Options &options) {
 template <typename Gemm>
 int run(Options &options)
 {
+  using defer = std::shared_ptr<void>;
+  defer _(nullptr, [](auto){ deinitialize(); }); // avoid siof
   initialize(options);
 
   // Instantiate CUTLASS kernel depending on templates
@@ -427,7 +441,7 @@ int run(Options &options)
   std::cout << "  Disposition: " << (result.passed ? "Passed" : "Failed") << std::endl;
 
   if (!result.passed) {
-    exit(-1);
+    return -1;
   }
 
   // Run profiling loop
@@ -510,7 +524,7 @@ int main(int argc, char const **args) {
   //
 
 #if defined(CUTLASS_ARCH_MMA_SM90_SUPPORTED)
-  run<Gemm>(options);
+  return run<Gemm>(options);
 #endif
 
   return 0;

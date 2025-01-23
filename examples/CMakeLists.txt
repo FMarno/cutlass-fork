@@ -30,8 +30,10 @@
 
 set(CUTLASS_EXAMPLES_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common)
 
-if(DEFINED DPCPP_SYCL_TARGET AND ${DPCPP_SYCL_TARGET} STREQUAL "nvptx64-nvidia-cuda")
+if(DEFINED DPCPP_SYCL_TARGET)
+if (${DPCPP_SYCL_TARGET} STREQUAL "nvptx64-nvidia-cuda")
 	set(SYCL_CUDA_COMPAT ON)
+endif()
 endif()
 
 if (${SYCL_CUDA_COMPAT})
@@ -75,6 +77,10 @@ function(cutlass_example_add_executable NAME)
       PRIVATE
       CUDA::cudart
     )
+
+    message("Major: " ${CUDAToolkit_VERSION_MAJOR})
+    message("Minor: " ${CUDAToolkit_VERSION_MINOR})
+    target_compile_definitions(${NAME} PRIVATE  __CUDACC_VER_MAJOR__=${CUDAToolkit_VERSION_MAJOR} __CUDACC_VER_MINOR__=${CUDAToolkit_VERSION_MINOR})
   endif()
 
   target_include_directories(
@@ -190,6 +196,7 @@ else()
   foreach(EXAMPLE
     14_ampere_tf32_tensorop_gemm
     35_gemm_softmax
+    48_hopper_warp_specialized_gemm
     cute
     sycl
     )

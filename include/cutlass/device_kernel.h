@@ -47,6 +47,10 @@
 #  define CUTLASS_GRID_CONSTANT_ENABLED
 #endif
 
+#if defined(CUTLASS_ENABLE_SYCL)
+#  define CUTLASS_GRID_CONSTANT
+#endif
+
 #if ! defined(CUTLASS_GRID_CONSTANT)
 #  if defined(CUTLASS_GRID_CONSTANT_ENABLED)
 #    define CUTLASS_GRID_CONSTANT __grid_constant__
@@ -122,7 +126,8 @@ void Kernel2(typename Operator::Params params) {
 /// Generic CUTLASS kernel template.
 template <typename Operator>
 #if defined(CUTLASS_ENABLE_SYCL)
-void device_kernel(typename Operator::Params const params, sycl::local_ptr<char> smem) {
+void device_kernel(typename Operator::Params const& params) {
+  char* smem = static_cast<char*>(sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
 #else
 CUTLASS_GLOBAL
 #ifdef __CUDACC__
@@ -137,7 +142,6 @@ void device_kernel(CUTLASS_GRID_CONSTANT typename Operator::Params const params)
   Operator op;
   op(params, smem);
   cutlass::arch::synclog_print();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

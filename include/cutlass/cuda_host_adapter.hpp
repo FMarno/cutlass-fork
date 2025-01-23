@@ -35,7 +35,7 @@
 
 #pragma once
 
-#if !defined(CUTLASS_ENABLE_SYCL)
+#if defined(__CUDA__)
 #include <cuda_runtime_api.h>
 #endif
 #include "cutlass/cutlass.h"
@@ -85,7 +85,7 @@ namespace cutlass {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#if !defined(__CUDACC_RTC__) && !defined(CUTLASS_ENABLE_SYCL)
+#if !defined(__CUDACC_RTC__)
 
 #if ((__CUDACC_VER_MAJOR__ >= 12) ||                               \
     ((__CUDACC_VER_MAJOR__ == 11) && (__CUDACC_VER_MINOR__ >= 8)))
