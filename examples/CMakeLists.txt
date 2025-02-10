@@ -78,8 +78,6 @@ function(cutlass_example_add_executable NAME)
       CUDA::cudart
     )
 
-    message("Major: " ${CUDAToolkit_VERSION_MAJOR})
-    message("Minor: " ${CUDAToolkit_VERSION_MINOR})
     target_compile_definitions(${NAME} PRIVATE  __CUDACC_VER_MAJOR__=${CUDAToolkit_VERSION_MAJOR} __CUDACC_VER_MINOR__=${CUDAToolkit_VERSION_MINOR})
   endif()
 
@@ -197,6 +195,18 @@ else()
     14_ampere_tf32_tensorop_gemm
     35_gemm_softmax
     48_hopper_warp_specialized_gemm
+    49_hopper_gemm_with_collective_builder
+    50_hopper_gemm_with_epilogue_swizzle
+    51_hopper_gett
+    52_hopper_gather_scatter_fusion
+    53_hopper_gemm_permute
+    54_hopper_fp8_warp_specialized_gemm
+    55_hopper_mixed_dtype_gemm
+    56_hopper_ptr_array_batched_gemm
+    57_hopper_grouped_gemm
+    61_hopper_gemm_with_topk_and_softmax
+    62_hopper_sparse_gemm
+    63_hopper_gemm_with_weight_prefetch
     cute
     sycl
     )
