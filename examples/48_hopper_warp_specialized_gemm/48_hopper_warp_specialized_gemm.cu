@@ -409,9 +409,9 @@ bool verify(const Options &options) {
 template <typename Gemm>
 int run(Options &options)
 {
+  initialize(options);
   using defer = std::shared_ptr<void>;
   defer _(nullptr, [](auto){ deinitialize(); }); // avoid siof
-  initialize(options);
 
   // Instantiate CUTLASS kernel depending on templates
   Gemm gemm;
