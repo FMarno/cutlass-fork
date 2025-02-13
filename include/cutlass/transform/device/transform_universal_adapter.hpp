@@ -140,6 +140,7 @@ public:
 
       CUTLASS_ASSERT(cuda_adapter == nullptr);
 
+#if !defined(CUTLASS_ENABLE_SYCL)
       if (smem_size >= (48 << 10)) {
         CUTLASS_TRACE_HOST("  Setting smem size to " << smem_size);
         cudaError_t result = cudaFuncSetAttribute(
@@ -152,6 +153,7 @@ public:
           return Status::kErrorInternal;
         }
       }
+#endif
     }
     return Status::kSuccess;
   }
@@ -205,8 +207,25 @@ public:
         CUTLASS_ASSERT(cuda_adapter == nullptr);
         void const* kernel = (void const*) device_kernel<TransformKernel>;
         if constexpr (TransformKernel::ArchTag::kMinComputeCapability == 90) {
+#if defined(CUTLASS_ENABLE_SYCL)
+        using namespace syclcompat::experimental;
+        sycl::ext::oneapi::experimental::properties launch_props{
+          sycl::ext::oneapi::experimental::cuda::cluster_size(
+              sycl::range<3>(cluster.z, cluster.y, cluster.x)
+          ),
+          sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size),
+        };
+        launch_properties l_props(launch_props);
+        const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+        const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+        syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props};
+        auto event = launch<device_kernel<TransformKernel>>(policy, params);
+        EventManager::getInstance().addEvent(event);
+#else
           launch_result = ClusterLauncher::launch(
             grid, cluster, block, smem_size, stream, kernel, kernel_params, launch_with_pdl);
+#endif
+
         }
       }
     }
