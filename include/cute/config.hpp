@@ -35,7 +35,7 @@
 #  define CUTE_DEVICE      __attribute__((always_inline)) inline
 #  define CUTE_HOST        inline
 #  define CUTE_INLINE_CALL [[clang::always_inline]]
-#elif defined(__CUDACC__) || defined(_NVHPC_CUDA)
+#elif !defined(CUTLASS_ENABLE_SYCL) && (defined(__CUDACC__) || defined(_NVHPC_CUDA))
 #  define CUTE_HOST_DEVICE __forceinline__ __host__ __device__
 #  define CUTE_DEVICE      __forceinline__          __device__
 #  define CUTE_HOST        __forceinline__ __host__
