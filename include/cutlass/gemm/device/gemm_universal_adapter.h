@@ -379,8 +379,10 @@ public:
     dim3 const block = GemmKernel::get_block_shape();
     dim3 const grid = get_grid_shape(params);
 
+#if defined(CUTLASS_ENABLE_SYCL)
     const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
     const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+#endif
 
     // configure smem size and carveout
     int smem_size = GemmKernel::SharedStorageSize;

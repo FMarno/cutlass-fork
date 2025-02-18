@@ -331,7 +331,7 @@ T shfl_xor_sync(
  * with CUDA definitions. When using CUDA, only the global definitions are available. This way we don't have to modify
  * the codebase, and we can rely on the compiler to select the right definition in both cases.
  */
-#if !defined(__CUDA__)
+#if defined(CUTLASS_ENABLE_SYCL) && !defined(__CUDA__)
 
 namespace cutlass {
 

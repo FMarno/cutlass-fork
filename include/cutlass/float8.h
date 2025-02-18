@@ -88,10 +88,10 @@
 #include <cuda_fp8.h>
 #endif // CUDA_FP8_ENABLED
 
-#if defined(__CUDA__)
-#include <cuda_fp16.h>
-#else
+#if defined(CUTLASS_ENABLE_SYCL) && !defined(__CUDA__)
 #include <cutlass/sycl_fp16.h>
+#else
+#include <cuda_fp16.h>
 #endif // defined(__CUDA__)
 
 #include "cutlass/cutlass.h"

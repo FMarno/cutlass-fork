@@ -146,12 +146,13 @@ class TensorView : public TensorRef<Element_, Layout_> {
   
   }
 
+#if defined(SYCL_ENABLE_CUTLASS)
   /// Converting constructor from TensorRef to non-constant data.
   CUTLASS_HOST_DEVICE
   TensorView(
     NonConstTensorView const &view        ///< TensorView to non-const data
-  ) = default;//:
-  //  Base(view), extent_(view.extent_) { }
+  ) = default;
+#endif
 
 
 
