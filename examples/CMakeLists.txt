@@ -76,6 +76,7 @@ function(cutlass_example_add_executable NAME)
       ${NAME}
       PRIVATE
       CUDA::cudart
+      CUDA::cuda_driver
     )
 
     target_compile_definitions(${NAME} PRIVATE  __CUDACC_VER_MAJOR__=${CUDAToolkit_VERSION_MAJOR} __CUDACC_VER_MINOR__=${CUDAToolkit_VERSION_MINOR})
