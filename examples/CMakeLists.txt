@@ -203,8 +203,8 @@ else()
     53_hopper_gemm_permute
     54_hopper_fp8_warp_specialized_gemm
     55_hopper_mixed_dtype_gemm
-    # 56_hopper_ptr_array_batched_gemm
-    # 57_hopper_grouped_gemm
+    56_hopper_ptr_array_batched_gemm
+    57_hopper_grouped_gemm
     61_hopper_gemm_with_topk_and_softmax
     62_hopper_sparse_gemm
     63_hopper_gemm_with_weight_prefetch

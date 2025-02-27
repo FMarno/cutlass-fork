@@ -103,7 +103,7 @@ struct BoxMullerFunc {
     double* rnd,                     ///< Size-2 vector to be filled with random values
     double  mean = 0,                ///< Mean of the Gaussian distribution
     double  stddev = 1,              ///< Standard deviation of the Gaussian distribution
-    double  pi = 3.14159) const {
+    double  pi = std::acos(-1)) const {
 
     double u1 = double(std::rand()) / double(RAND_MAX);
     double u2 = double(std::rand()) / double(RAND_MAX);
@@ -172,7 +172,7 @@ struct RandomGaussianFunc {
     double pnz_ = 1.0,
     bool exclude_zero_ = false
   ):
-    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(3.14159), pnz(pnz_), exclude_zero(exclude_zero_) {
+    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(std::acos(-1)), pnz(pnz_), exclude_zero(exclude_zero_) {
       std::srand((unsigned)seed);
   }
 
@@ -247,7 +247,7 @@ struct RandomGaussianFunc<complex<Element> > {
     double pnz_ = 1.0,
     bool exclude_zero_ = false
   ):
-    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(3.14159), pnz(pnz_), exclude_zero(exclude_zero_) {
+    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(std::acos(-1)), pnz(pnz_), exclude_zero(exclude_zero_) {
       std::srand((unsigned)seed);
   }
 
@@ -324,7 +324,7 @@ struct RandomGaussianFunc<Quaternion<Element> > {
     double pnz_ = 1.0,
     bool exclude_zero_ = false
   ):
-    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(3.14159), pnz(pnz_), exclude_zero(exclude_zero_) {
+    seed(seed_), mean(mean_), stddev(stddev_), int_scale(int_scale_), pi(std::acos(-1)), pnz(pnz_), exclude_zero(exclude_zero_) {
       std::srand((unsigned)seed);
   }
 
