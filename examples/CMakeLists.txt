@@ -161,15 +161,15 @@ if (NOT CUTLASS_ENABLE_SYCL)
     # 46_depthwise_simt_conv2dfprop
     # 47_ampere_gemm_universal_streamk
     48_hopper_warp_specialized_gemm
-    #49_hopper_gemm_with_collective_builder
-    #50_hopper_gemm_with_epilogue_swizzle
-    #51_hopper_gett
-    #52_hopper_gather_scatter_fusion
+    49_hopper_gemm_with_collective_builder
+    50_hopper_gemm_with_epilogue_swizzle
+    51_hopper_gett
+    52_hopper_gather_scatter_fusion
     53_hopper_gemm_permute
     54_hopper_fp8_warp_specialized_gemm
-    # 55_hopper_mixed_dtype_gemm
-    # 56_hopper_ptr_array_batched_gemm
-    # 57_hopper_grouped_gemm
+    55_hopper_mixed_dtype_gemm
+    56_hopper_ptr_array_batched_gemm
+    57_hopper_grouped_gemm
     # 58_ada_fp8_gemm
     # 59_ampere_gather_scatter_conv
     61_hopper_gemm_with_topk_and_softmax
@@ -179,15 +179,15 @@ if (NOT CUTLASS_ENABLE_SYCL)
     65_distributed_gemm
     67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
     69_hopper_mixed_dtype_grouped_gemm
-    70_blackwell_gemm
-    71_blackwell_gemm_with_collective_builder
-    72_blackwell_narrow_precision_gemm
-    73_blackwell_gemm_preferred_cluster
-    74_blackwell_gemm_streamk
-    75_blackwell_grouped_gemm
-    76_blackwell_conv
-    77_blackwell_fmha
-    78_blackwell_emulated_bf16x9_gemm
+    # 70_blackwell_gemm
+    # 71_blackwell_gemm_with_collective_builder
+    # 72_blackwell_narrow_precision_gemm
+    # 73_blackwell_gemm_preferred_cluster
+    # 74_blackwell_gemm_streamk
+    # 75_blackwell_grouped_gemm
+    # 76_blackwell_conv
+    # 77_blackwell_fmha
+    # 78_blackwell_emulated_bf16x9_gemm
   )
     add_subdirectory(${EXAMPLE})
   endforeach()
@@ -199,7 +199,7 @@ else()
     49_hopper_gemm_with_collective_builder
     50_hopper_gemm_with_epilogue_swizzle
     51_hopper_gett
-    # 52_hopper_gather_scatter_fusion # error: reference to non-static member function must be called
+    52_hopper_gather_scatter_fusion # error: reference to non-static member function must be called
     53_hopper_gemm_permute
     54_hopper_fp8_warp_specialized_gemm
     55_hopper_mixed_dtype_gemm
@@ -208,7 +208,7 @@ else()
     61_hopper_gemm_with_topk_and_softmax
     62_hopper_sparse_gemm
     63_hopper_gemm_with_weight_prefetch
-    # 67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
+    67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
     69_hopper_mixed_dtype_grouped_gemm
     cute
     sycl

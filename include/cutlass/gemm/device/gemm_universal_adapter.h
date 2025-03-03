@@ -530,7 +530,7 @@ public:
           sycl::ext::oneapi::experimental::max_linear_work_group_size<GemmKernel::MaxThreadsPerBlock>
         );
         syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props, k_props};
-        auto event = launch<device_kernel<GemmKernel>>(policy, params);
+        auto event = syclcompat::experimental::launch<device_kernel<GemmKernel>>(policy, params);
         EventManager::getInstance().addEvent(event);
 #endif
     }
@@ -581,7 +581,7 @@ public:
           sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size),
         };
 
-        auto event = launch<device_kernel<GemmKernel>>(syclcompat::experimental::launch_policy{
+        auto event = syclcompat::experimental::launch<device_kernel<GemmKernel>>(syclcompat::experimental::launch_policy{
           sycl_grid, sycl_block, launch_props, kernel_props
         }, params);
         EventManager::getInstance().addEvent(event);

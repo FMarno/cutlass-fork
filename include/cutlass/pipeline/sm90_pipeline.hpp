@@ -430,11 +430,19 @@ public:
     producer_commit(state.index(), bytes);
   }
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  template<void(*ArriveOp)(uint64_t const*)>
+  CUTLASS_DEVICE
+  void producer_commit(PipelineState state) {
+    ArriveOp(producer_get_barrier(state.index()));
+  }
+#else
   template<class UserDefinedArriveOp>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state, UserDefinedArriveOp&& user_defined_arrive_op) {
     cute::forward<UserDefinedArriveOp>(user_defined_arrive_op)(producer_get_barrier(state.index()));;
   }
+#endif
 
   // Prevents early exit of producer blocks in Cluster.
   // This should be called once before kernel exits.
@@ -1075,7 +1083,7 @@ public:
   }
 
 #if defined(CUTLASS_ENABLE_SYCL)
-  template<void(*ArriveOp)(PipelineState const*)>
+  template<void(*ArriveOp)(uint64_t const*)>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state) {
     ArriveOp(producer_get_barrier(state.index()));
