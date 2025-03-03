@@ -208,6 +208,8 @@ else()
     61_hopper_gemm_with_topk_and_softmax
     62_hopper_sparse_gemm
     63_hopper_gemm_with_weight_prefetch
+    # 67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
+    69_hopper_mixed_dtype_grouped_gemm
     cute
     sycl
     )
