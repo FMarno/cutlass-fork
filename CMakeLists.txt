@@ -783,7 +783,7 @@ if (DOXYGEN_FOUND)
     )
 endif()
 
-if(NOT WIN32 AND NOT CUTLASS_ENABLE_SYCL)
+if(NOT (WIN32 OR CUTLASS_ENABLE_SYCL OR CUTLASS_CLANG_DEVICE_COMPILE))
   # Add common library search paths so executables and libraries can load and run
   # without LD_LIBRARY_PATH being set.
   link_libraries(

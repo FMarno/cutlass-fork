@@ -38,7 +38,7 @@
 #include <cutlass/platform/platform.h> // uint64_t
 
 // __grid_constant__ was introduced in CUDA 11.7.
-#if ((__CUDACC_VER_MAJOR__ >= 12) || ((__CUDACC_VER_MAJOR__ == 11) && (__CUDACC_VER_MINOR__ >= 7))) && !CUTLASS_CLANG_CUDA
+#if ((__CUDACC_VER_MAJOR__ >= 12) || ((__CUDACC_VER_MAJOR__ == 11) && (__CUDACC_VER_MINOR__ >= 7)))
 #  define CUTLASS_GRID_CONSTANT_SUPPORTED
 #endif
 
