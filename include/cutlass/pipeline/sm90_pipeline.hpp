@@ -1098,7 +1098,6 @@ public:
   }
 #endif
 
-
   // Prevents early exit of producer blocks in Cluster.
   // This should be called once before kernel exits.
   CUTLASS_DEVICE
