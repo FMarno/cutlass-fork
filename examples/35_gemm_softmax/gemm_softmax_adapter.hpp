@@ -353,13 +353,16 @@ public:
     CUTLASS_TRACE_HOST("GemmUniversal::run()");
     dim3 const block = GemmKernel::get_block_shape();
     dim3 const grid = get_grid_shape(params);
-    dim3 const block_finalize = syclcompat::dim3(NumThreadsPerWarp,
-                                                 std::min(MaxNumThreadsPerBlock / NumThreadsPerWarp,
-                                                          params.softmax_params.args.M),
-                                                 1);
-    dim3 const grid_finalize = syclcompat::dim3(cute::ceil_div(params.softmax_params.args.M, block_finalize.x),
-                                                params.softmax_params.args.batch_count,
-                                                1);
+    dim3 const block_finalize(
+      NumThreadsPerWarp,
+      std::min(MaxNumThreadsPerBlock / NumThreadsPerWarp, params.softmax_params.args.M),
+      1
+    );
+    dim3 const grid_finalize(
+      cute::ceil_div(params.softmax_params.args.M, block_finalize.x),
+      params.softmax_params.args.batch_count,
+      1
+    );
 
     // configure smem size and carveout
     int smem_size = GemmKernel::SharedStorageSize;
