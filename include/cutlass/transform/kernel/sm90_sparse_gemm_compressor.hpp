@@ -291,7 +291,6 @@ private:
 
 private:
 
-  // TODO definition of CUTE_DEVICE is wrong
   CUTE_DEVICE
   static void
   structure_sparse_compress(Params params, void* smem_buf) {

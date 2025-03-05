@@ -393,11 +393,7 @@ bool verify(const Options &options) {
     ref_D);
 
   // Wait for kernel to finish
-#if defined(CUTLASS_ENABLE_SYCL)
-  syclcompat::wait_and_throw();
-#else
   CUDA_CHECK(cudaDeviceSynchronize());
-#endif
 
   // Check if output from CUTLASS kernel and reference kernel are equal or not
   bool passed = cutlass::reference::device::BlockCompareEqual(block_ref_D.get(), block_D.get(), block_D.size());
@@ -441,7 +437,7 @@ int run(Options &options)
   std::cout << "  Disposition: " << (result.passed ? "Passed" : "Failed") << std::endl;
 
   if (!result.passed) {
-    return -1;
+    exit(-1);
   }
 
   // Run profiling loop

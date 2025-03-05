@@ -475,8 +475,7 @@ public:
         };
         const syclcompat::dim3 sycl_grid_finalize(grid_finalize.x, grid_finalize.y, grid_finalize.z);
         const syclcompat::dim3 sycl_block_finalize(block_finalize.x, block_finalize.y, block_finalize.z);
-        auto event_finalize = launch<device_kernel<SoftmaxFinalizeKernel>>(
-          launch_policy{
+        auto event_finalize = launch<device_kernel<SoftmaxFinalizeKernel>>(launch_policy{
             sycl_grid_finalize,
             sycl_block_finalize,
             kernel_launch_props_finalize,

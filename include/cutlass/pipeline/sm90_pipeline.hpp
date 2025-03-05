@@ -430,13 +430,12 @@ public:
     producer_commit(state.index(), bytes);
   }
 
-#if defined(CUTLASS_ENABLE_SYCL)
   template<void(*ArriveOp)(uint64_t const*)>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state) {
     ArriveOp(producer_get_barrier(state.index()));
   }
-#else
+#if !defined(CUTLASS_ENABLE_SYCL)
   template<class UserDefinedArriveOp>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state, UserDefinedArriveOp&& user_defined_arrive_op) {
@@ -1082,14 +1081,13 @@ public:
     producer_commit(state.index());
   }
 
-#if defined(CUTLASS_ENABLE_SYCL)
   template<void(*ArriveOp)(uint64_t const*)>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state) {
     ArriveOp(producer_get_barrier(state.index()));
     producer_commit(state);
   }
-#else
+#if !defined(CUTLASS_ENABLE_SYCL)
   template<class UserDefinedArriveOp>
   CUTLASS_DEVICE
   void producer_commit(PipelineState state, UserDefinedArriveOp&& user_defined_arrive_op) {
@@ -1097,7 +1095,6 @@ public:
     producer_commit(state);
   }
 #endif
-
 
   // Prevents early exit of producer blocks in Cluster.
   // This should be called once before kernel exits.
