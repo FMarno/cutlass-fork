@@ -103,13 +103,9 @@ endif()
 #
 ################################################################################
 
-set(CUTLASS_ENABLE_SYCL OFF CACHE BOOL "Enable SYCL")
-set(CUTLASS_SYCL_PROFILING_ENABLED OFF CACHE BOOL "Use SYCL events to calculate device execution time")
+option(CUTLASS_ENABLE_SYCL "Enable SYCL" OFF)
+option(CUTLASS_SYCL_PROFILING_ENABLED "Use SYCL events to calculate device execution time" OFF)
 
-set(CUTLASS_SYCL_SWITCH_WG OFF CACHE BOOL "Enable SWITCH WG and for GEMM on Intel PVC during benchmarking")
-if(CUTLASS_SYCL_SWITCH_WG)
-  add_compile_definitions(CUTLASS_SYCL_SWITCH_WG)
-endif()
 if (CUTLASS_ENABLE_SYCL)
   set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
