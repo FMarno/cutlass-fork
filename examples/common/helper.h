@@ -31,7 +31,7 @@
 #pragma once
 
 #if defined(CUTLASS_ENABLE_SYCL)
-#include "cutlass/util/sycl_timer.hpp"
+#include "sycl/sycl.hpp"
 #else
 #include <cuda_runtime.h>
 #endif
@@ -71,7 +71,8 @@
 struct GpuTimer {
 #if defined(CUTLASS_ENABLE_SYCL)
     using cudaStream_t = int;
-    SYCLTimer syclTimer;
+    sycl::event _start;
+    sycl::event _stop;
 #else
     cudaEvent_t _start;
     cudaEvent_t _stop;
@@ -101,7 +102,8 @@ struct GpuTimer {
     {
         _stream_id = stream_id;
 #if defined(CUTLASS_ENABLE_SYCL)
-        syclTimer.start();
+        auto q = syclcompat::get_default_queue();
+        _start = sycl::ext::oneapi::experimental::submit_profiling_tag(q);
 #else
         CUDA_CHECK(cudaEventRecord(_start, _stream_id));
 #endif
@@ -111,7 +113,8 @@ struct GpuTimer {
     void stop()
     {
 #if defined(CUTLASS_ENABLE_SYCL)
-        syclTimer.stop();
+        auto q = syclcompat::get_default_queue();
+        _stop = sycl::ext::oneapi::experimental::submit_profiling_tag(q);
 #else
         CUDA_CHECK(cudaEventRecord(_stop, _stream_id));
 #endif
@@ -121,7 +124,12 @@ struct GpuTimer {
     float elapsed_millis()
     {
 #if defined(CUTLASS_ENABLE_SYCL)
-        return syclTimer.milliseconds();
+      // time in nanoseconds
+      const auto elapsed =
+        _stop.get_profiling_info<sycl::info::event_profiling::command_end>() -
+        _start.get_profiling_info<sycl::info::event_profiling::command_end>();
+
+      return static_cast<float>(elapsed) * 1e-6f;
 #else
         float elapsed = 0.0;
         CUDA_CHECK(cudaEventSynchronize(_stop));
