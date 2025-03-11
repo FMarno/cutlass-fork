@@ -49,6 +49,326 @@ namespace cutlass {
 namespace reference {
 namespace device {
 
+template <typename Element>
+struct RandomGaussianFunc {
+
+  using FloatType = typename std::conditional<(sizeof(Element) > 4), double, float>::type;
+  using IntType = typename std::conditional<(sizeof(Element) > 4), int64_t, int>::type;
+
+  /// Parameters structure
+  struct Params {
+
+    //
+    // Data members
+    //
+
+    uint64_t seed;
+    FloatType mean;
+    FloatType stddev;
+    int int_scale;
+    FloatType float_scale_up;
+    FloatType float_scale_down;
+    int exclude_zero;           ///< If non-negative, excludes zeros
+
+    //
+    // Methods
+    //
+
+    /// Construction of Gaussian RNG functor.
+    Params(
+      uint64_t seed_ = 0,
+      Element mean_ = 0,
+      Element stddev_ = 1,
+      int int_scale_ = -1,
+      int exclude_zero_ = -1
+    ):
+      seed(seed_),
+      mean(static_cast<FloatType>(mean_)),
+      stddev(static_cast<FloatType>(stddev_)),
+      int_scale(int_scale_),
+      exclude_zero(exclude_zero_) {
+
+      float_scale_up = FloatType(IntType(1) << int_scale); // scale up to clamp low order bits
+      float_scale_down = FloatType(1) / FloatType(IntType(1) << int_scale);
+    }
+  };
+
+  //
+  // Data members
+  //
+
+  /// Parameters object
+  Params params;
+
+  /// RNG state object
+  curandState_t rng_state;
+
+  //
+  // Methods
+  //
+
+  /// Device-side initialization of RNG
+  CUTLASS_DEVICE
+  RandomGaussianFunc(Params const &params): params(params) {
+
+    uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    curand_init(params.seed, gtid, 0, &rng_state);
+  }
+
+  /// Compute random value and update RNG state
+  CUTLASS_DEVICE
+  Element operator()() {
+
+    FloatType rnd = random_normal_float<FloatType>(&rng_state);
+    rnd = params.mean + params.stddev * rnd;
+
+    Element result;
+    if (params.int_scale >= 0) {
+      rnd = FloatType(std::llround(rnd * params.float_scale_up));
+      result = Element(rnd * params.float_scale_down);
+    }
+    else {
+      result = Element(rnd);
+    }
+
+    if (params.exclude_zero >=0 && result == Element(0.0)) {
+      if (rnd > FloatType(0)) {
+        rnd += FloatType(1);
+      } else {
+        rnd -= FloatType(1);
+      }
+      result = Element(rnd);
+    }
+
+    return result;
+  }
+};
+
+
+template <typename Real>
+struct RandomGaussianFunc<complex<Real>> {
+
+  using Element = complex<Real>;
+  using FloatType = typename std::conditional<(sizeof(Real) > 4), double, float>::type;
+  using IntType = typename std::conditional<(sizeof(Real) > 4), int64_t, int>::type;
+
+  /// Parameters structure
+  struct Params {
+
+    //
+    // Data members
+    //
+
+    uint64_t seed;
+    FloatType mean;
+    FloatType stddev;
+    int int_scale;
+    FloatType float_scale_up;
+    FloatType float_scale_down;
+    int exclude_zero;           ///< If non-negative, excludes zeros
+
+    //
+    // Methods
+    //
+
+    /// Construction of Gaussian RNG functor.
+    Params(
+      uint64_t seed_ = 0,
+      Real mean_ = 0,
+      Real stddev_ = 1,
+      int int_scale_ = -1,
+      int exclude_zero_ = -1
+    ):
+      seed(seed_),
+      mean(static_cast<FloatType>(mean_)),
+      stddev(static_cast<FloatType>(stddev_)),
+      int_scale(int_scale_),
+      exclude_zero(exclude_zero_) {
+
+      float_scale_up = FloatType(IntType(1) << int_scale);
+      float_scale_down = FloatType(1) / FloatType(IntType(1) << int_scale);
+    }
+  };
+
+  //
+  // Data members
+  //
+
+  /// Parameters object
+  Params params;
+
+  /// RNG state object
+  curandState_t rng_state;
+
+  //
+  // Methods
+  //
+
+  /// Device-side initialization of RNG
+  CUTLASS_DEVICE
+  RandomGaussianFunc(Params const &params): params(params) {
+
+    uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    curand_init(params.seed, gtid, 0, &rng_state);
+  }
+
+  /// Compute random value and update RNG state
+  CUTLASS_DEVICE
+  Element operator()() {
+
+    FloatType rnd_r = random_normal_float<FloatType>(&rng_state);
+    FloatType rnd_i = random_normal_float<FloatType>(&rng_state);
+    rnd_r = params.mean + params.stddev * rnd_r;
+    rnd_i = params.mean + params.stddev * rnd_i;
+
+    Element result;
+    if (params.int_scale >= 0) {
+      rnd_r = FloatType(std::llround(rnd_r * params.float_scale_up));
+      rnd_i = FloatType(std::llround(rnd_i * params.float_scale_up));
+
+      result = {
+        Real(rnd_r * params.float_scale_down),
+        Real(rnd_i * params.float_scale_down)
+      };
+    }
+    else {
+      result = Element(Real(rnd_r), Real(rnd_i));
+    }
+
+    if (params.exclude_zero >= 0 &&
+        result.real() == Real(0.0) &&
+        result.imag() == Real(0.0)) {
+
+      if (rnd_r > FloatType(0)) {
+        rnd_r += FloatType(1);
+      } else {
+        rnd_r -= FloatType(1);
+      }
+      result = Element(Real(rnd_r), Real(rnd_i));
+    }
+
+    return result;
+  }
+};
+
+/// Computes a random Gaussian distribution
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+struct TensorFillRandomGaussianFunc {
+
+  /// View type
+  using TensorView = TensorView<Element, Layout>;
+
+  /// Scalar type
+  typedef typename TensorView::Element T;
+
+  /// Coordinate in tensor's index space
+  typedef typename TensorView::TensorCoord TensorCoord;
+
+  using RandomFunc = RandomGaussianFunc<Element>;
+
+  /// Parameters structure
+  struct Params {
+
+    //
+    // Data members
+    //
+
+    TensorView view;
+    typename RandomFunc::Params random;
+
+    //
+    // Methods
+    //
+
+    /// Construction of Gaussian RNG functor.
+    Params(
+      TensorView view_ = TensorView(),
+      typename RandomFunc::Params random_ = typename RandomFunc::Params()
+    ):
+      view(view_), random(random_) {
+
+    }
+  };
+
+  //
+  // Data members
+  //
+
+  Params params;
+  RandomFunc random;
+
+  //
+  // Methods
+  //
+
+  /// Device-side initialization of RNG
+  CUTLASS_DEVICE
+  TensorFillRandomGaussianFunc(Params const &params): params(params), random(params.random) {
+
+  }
+
+  /// Compute random value and update RNG state
+  CUTLASS_DEVICE
+  void operator()(TensorCoord const &coord) {
+
+    params.view.at(coord) = random();
+  }
+};
+
+} // namespace detail
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Fills a tensor with random values with a Gaussian distribution.
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+void TensorFillRandomGaussian(
+  TensorView<Element, Layout> view,       ///< destination tensor
+  uint64_t seed,                          ///< seed for RNG
+  typename RealType<Element>::Type mean = Element(0),   ///< Gaussian distribution's mean
+  typename RealType<Element>::Type stddev = Element(1), ///< Gaussian distribution's standard deviation
+  int bits = -1,                          ///< If non-negative, specifies number of fractional bits that
+                                          ///  are not truncated to zero. Permits reducing precision of
+                                          ///  data.
+  int exclude_zero = -1) {                ///< If non-negative, excludes zeros from tensor init
+
+  using RandomFunc = detail::RandomGaussianFunc<Element>;
+  using Func = detail::TensorFillRandomGaussianFunc<Element, Layout>;
+  using Params = typename Func::Params;
+
+  TensorForEach<Func, Layout::kRank, Params>(
+    view.extent(),
+    Params(view, typename RandomFunc::Params(seed, mean, stddev, bits, exclude_zero)),
+    /*grid_size*/0, /*block_size*/0
+  );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Fills a tensor with random values with a Gaussian distribution.
+template <typename Element>               ///< Element type
+void BlockFillRandomGaussian(
+  Element *ptr,
+  size_t capacity,
+  uint64_t seed,                              ///< seed for RNG
+  typename RealType<Element>::Type mean,      ///< Gaussian distribution's mean
+  typename RealType<Element>::Type stddev,    ///< Gaussian distribution's standard deviation
+  int bits = -1) {                            ///< If non-negative, specifies number of fractional bits that
+                                              ///  are not truncated to zero. Permits reducing precision of
+                                              ///  data.
+
+  using RandomFunc = detail::RandomGaussianFunc<Element>;
+
+  typename RandomFunc::Params params(seed, mean, stddev, bits);
+
+  BlockForEach<Element, RandomFunc>(ptr, capacity, params, /*grid_size*/0, /*block_size*/0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
