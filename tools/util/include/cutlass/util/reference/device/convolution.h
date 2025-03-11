@@ -75,7 +75,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv2dFprop(
+CUTLASS_GLOBAL void Conv2dFprop(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_x,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -221,7 +221,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv3dFprop(
+CUTLASS_GLOBAL void Conv3dFprop(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_x,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -383,7 +383,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv2dDgrad(
+CUTLASS_GLOBAL void Conv2dDgrad(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -530,7 +530,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv3dDgrad(
+CUTLASS_GLOBAL void Conv3dDgrad(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -696,7 +696,7 @@ template <
   int kCtaShapeM = 8,     // shape of a threadblock in units of threads
   int kCtaShapeN = 16     // shape of a threadblock in units of threads
 >
-__global__ void Conv2dWgrad(
+CUTLASS_GLOBAL void Conv2dWgrad(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_x,
@@ -837,7 +837,7 @@ template <
   int kCtaShapeM = 8,     // shape of a threadblock in units of threads
   int kCtaShapeN = 16     // shape of a threadblock in units of threads
 >
-__global__ void Conv3dWgrad(
+CUTLASS_GLOBAL void Conv3dWgrad(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_x,
@@ -1024,6 +1024,28 @@ Status Conv2dFprop(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid(uint32_t(blocks_m), (problem_size.K + (kCtaShapeN * kThreadN) - 1) / (kCtaShapeN * kThreadN));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv2dFprop<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv2dFprop<
     ElementA,
     LayoutA,
@@ -1040,6 +1062,7 @@ Status Conv2dFprop(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_x,
     tensor_w,
@@ -1095,6 +1118,28 @@ Status Conv3dFprop(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid(uint32_t(blocks_m), (problem_size.K + (kCtaShapeN * kThreadN) - 1) / (kCtaShapeN * kThreadN));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv3dFprop<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv3dFprop<
     ElementA,
     LayoutA,
@@ -1111,6 +1156,7 @@ Status Conv3dFprop(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_x,
     tensor_w,
@@ -1166,6 +1212,28 @@ Status Conv2dDgrad(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid(uint32_t(blocks_m), (problem_size.C + (kCtaShapeN * kThreadN) - 1) / (kCtaShapeN * kThreadN));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv2dDgrad<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv2dDgrad<
     ElementA,
     LayoutA,
@@ -1182,6 +1250,7 @@ Status Conv2dDgrad(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_dy,
     tensor_w,
@@ -1237,6 +1306,28 @@ Status Conv3dDgrad(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid(uint32_t(blocks_m), (problem_size.C + (kCtaShapeN * kThreadN) - 1) / (kCtaShapeN * kThreadN));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv3dDgrad<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv3dDgrad<
     ElementA,
     LayoutA,
@@ -1253,6 +1344,7 @@ Status Conv3dDgrad(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_dy,
     tensor_w,
@@ -1308,6 +1400,28 @@ Status Conv2dWgrad(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid((problem_size.K + (kCtaShapeM * kThreadM) - 1) / (kCtaShapeM * kThreadM), uint32_t(blocks_n));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv2dWgrad<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv2dWgrad<
     ElementA,
     LayoutA,
@@ -1324,6 +1438,7 @@ Status Conv2dWgrad(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_dy,
     tensor_x,
@@ -1379,6 +1494,28 @@ Status Conv3dWgrad(
   dim3 block(kCtaShapeM, kCtaShapeN);
   dim3 grid((problem_size.K + (kCtaShapeM * kThreadM) - 1) / (kCtaShapeM * kThreadM), uint32_t(blocks_n));
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block};
+  syclcompat::experimental::launch<
+    kernel::Conv3dWgrad<
+      ElementA,
+      LayoutA,
+      ElementB,
+      LayoutB,
+      ElementC,
+      LayoutC,
+      ElementCompute,
+      ElementAccumulator,
+      ConvertOp,
+      InnerProductOp,
+      kThreadM,
+      kThreadN,
+      kCtaShapeM,
+      kCtaShapeN>>(policy,
+#else
   kernel::Conv3dWgrad<
     ElementA,
     LayoutA,
@@ -1395,6 +1532,7 @@ Status Conv3dWgrad(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block, 0, stream >>>(
+#endif
     problem_size,
     tensor_dy,
     tensor_x,
