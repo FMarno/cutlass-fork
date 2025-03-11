@@ -604,7 +604,7 @@ public:
       ptr_E = static_cast<ElementE * const *>(params.ptr_E)[threadblock_tile_offset.k()];
     }
 
-    __syncthreads();
+    syncthreads();
 
     // Compute initial location in logical coordinates
     cutlass::MatrixCoord tb_offset_A{

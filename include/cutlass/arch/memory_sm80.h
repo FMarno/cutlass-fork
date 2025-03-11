@@ -194,8 +194,13 @@ struct cp_async_nan<16, CacheOperation::Always> {
   cp_async_nan(void *smem_ptr, void const *global_ptr, bool pred_guard) {
     #if CUDA_CP_ASYNC_ACTIVATED
 
-      static __constant__ uint4 OOB_NAN_F16x8 = {OOB_NAN_F16x2, OOB_NAN_F16x2,
-                                                 OOB_NAN_F16x2, OOB_NAN_F16x2};
+      static
+#if defined(CUTLASS_ENABLE_SYCL)
+      constexpr
+#else
+      __constant__
+#endif
+      uint4 OOB_NAN_F16x8 = {OOB_NAN_F16x2, OOB_NAN_F16x2, OOB_NAN_F16x2, OOB_NAN_F16x2};
 
       unsigned smem_int_ptr = cutlass_get_smem_pointer(smem_ptr);
 

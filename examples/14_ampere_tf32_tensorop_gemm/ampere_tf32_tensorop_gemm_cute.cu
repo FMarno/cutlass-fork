@@ -70,11 +70,7 @@
 #include "cutlass/util/packed_stride.hpp"
 #include "cutlass/util/reference/device/gemm_complex.h"
 #include "cutlass/util/reference/device/tensor_compare.h"
-#if defined(CUTLASS_ENABLE_SYCL)
-#include "cutlass/util/reference/device/sycl_tensor_fill.h"
-#else
 #include "cutlass/util/reference/device/tensor_fill.h"
-#endif
 #include "helper.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,16 +265,12 @@ struct ExampleRunner {
             M * N  // batch_stride_D
     );
 
-#if defined(CUTLASS_ENABLE_SYCL)
-    syclcompat::wait_and_throw();
-#else
     cudaError_t result = cudaDeviceSynchronize();
     if (result != cudaSuccess) {
       std::cerr << "Reference kernel failed. Last CUDA error: "
                 << cudaGetErrorString(result) << std::endl;
       return false;
     }
-#endif
 
     // Check if output from CUTLASS kernel and reference kernel are equal or not
     bool passed = cutlass::reference::device::BlockCompareEqual(block_ref_D.get(), block_D.get(), block_D.size());

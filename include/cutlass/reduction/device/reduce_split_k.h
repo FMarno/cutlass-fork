@@ -195,7 +195,13 @@ public:
     }
     else {
       cutlass::arch::synclog_setup();
+#if defined(CUTLASS_ENABLE_SYCL)
+      const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+      const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+      syclcompat::launch<Kernel<ReductionKernel>>(sycl_grid, sycl_block, params_);
+#else
       Kernel<ReductionKernel><<< grid, block, 0, stream >>>(params_);
+#endif
     }
 
     cudaError_t result = cudaGetLastError();

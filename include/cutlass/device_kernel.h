@@ -74,13 +74,12 @@ template <typename  T>                                                          
 
 /// Generic CUTLASS kernel template.
 template <typename Operator>
-#if defined(CUTLASS_ENABLE_SYCL)
-void Kernel(typename Operator::Params params, char* smem) {
-  // Dynamic shared memory base pointer
-  int* SharedStorageBase = reinterpret_cast<int*>(smem);
-#else
 CUTLASS_GLOBAL
 void Kernel(typename Operator::Params params) {
+#if defined(CUTLASS_ENABLE_SYCL)
+  int* SharedStorageBase = static_cast<int*>(
+      sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
+#else
   // Dynamic shared memory base pointer
   extern __shared__ int SharedStorageBase[];
 #endif
@@ -97,13 +96,12 @@ void Kernel(typename Operator::Params params) {
 
 /// Generic CUTLASS kernel template.
 template <typename Operator>
-#if defined(CUTLASS_ENABLE_SYCL)
-void Kernel2(typename Operator::Params params, char* smem) {
-  // Dynamic shared memory base pointer
-  int* SharedStorageBase = reinterpret_cast<int*>(smem);
-#else
 CUTLASS_GLOBAL
-void Kernel2(typename Operator::Params params) {
+void Kernel2(typename Operator::Params const& params) {
+#if defined(CUTLASS_ENABLE_SYCL)
+  int* SharedStorageBase = static_cast<int*>(
+      sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
+#else
   // Dynamic shared memory base pointer
   extern __shared__ int SharedStorageBase[];
 #endif

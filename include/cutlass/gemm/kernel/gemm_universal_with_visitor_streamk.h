@@ -821,7 +821,7 @@ protected:
       }
 
       // Continue to next tile
-      __syncthreads();
+      syncthreads();
 
       if (block_idx >= dp_start_block_idx)
       {
