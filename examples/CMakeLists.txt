@@ -152,8 +152,8 @@ foreach(EXAMPLE
   37_gemm_layernorm_gemm_fusion
   38_syr2k_grouped
   cute
-  39_gemm_permute
-  41_fused_multi_head_attention
+  #39_gemm_permute
+  #41_fused_multi_head_attention
   42_ampere_tensorop_group_conv
   43_ell_block_sparse_gemm
   45_dual_gemm
@@ -175,7 +175,7 @@ foreach(EXAMPLE
   62_hopper_sparse_gemm
   63_hopper_gemm_with_weight_prefetch
   64_ada_fp8_gemm_grouped
-  # 65_distributed_gemm error: invalid instruction mnemonic 'ld.global.cv.u32'
+  65_distributed_gemm # error: invalid instruction mnemonic 'ld.global.cv.u32'
   67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
   69_hopper_mixed_dtype_grouped_gemm
   70_blackwell_gemm
