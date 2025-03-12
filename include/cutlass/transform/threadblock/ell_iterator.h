@@ -119,7 +119,7 @@ class Iterator{
           lane_(thread_idx % 32) {
 
       load_ell_indices();
-      __syncthreads();
+      syncthreads();
           
       is_pow2_ = ((block_size_ & (block_size_ - 1)) == 0);
       if( is_pow2_ && k_shape <= block_size_ ) lane_ = 0;

@@ -49,6 +49,7 @@ namespace cutlass {
 namespace reference {
 namespace device {
 
+namespace detail {
 template <typename Element>
 struct RandomGaussianFunc {
 
@@ -101,7 +102,7 @@ struct RandomGaussianFunc {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  oneapi::mkl::rng::device::gaussian<FloatType> distribution;
 
   //
   // Methods
@@ -109,19 +110,16 @@ struct RandomGaussianFunc {
 
   /// Device-side initialization of RNG
   CUTLASS_DEVICE
-  RandomGaussianFunc(Params const &params): params(params) {
-
-    uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    curand_init(params.seed, gtid, 0, &rng_state);
-  }
+  RandomGaussianFunc(Params const &params):
+    params(params),
+    distribution(static_cast<FloatType>(params.mean), static_cast<FloatType>(params.stddev)) {}
 
   /// Compute random value and update RNG state
   CUTLASS_DEVICE
   Element operator()() {
-
-    FloatType rnd = random_normal_float<FloatType>(&rng_state);
-    rnd = params.mean + params.stddev * rnd;
+    oneapi::mkl::rng::device::philox4x32x10<> generator(params.seed,
+      ThreadIdxX() + BlockIdxX() * BlockDimX());
+    FloatType rnd = oneapi::mkl::rng::device::generate(distribution, generator);
 
     Element result;
     if (params.int_scale >= 0) {
@@ -199,7 +197,7 @@ struct RandomGaussianFunc<complex<Real>> {
   Params params;
 
   /// RNG state object
-  curandState_t rng_state;
+  oneapi::mkl::rng::device::gaussian<FloatType> distribution;
 
   //
   // Methods
@@ -207,21 +205,17 @@ struct RandomGaussianFunc<complex<Real>> {
 
   /// Device-side initialization of RNG
   CUTLASS_DEVICE
-  RandomGaussianFunc(Params const &params): params(params) {
-
-    uint64_t gtid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    curand_init(params.seed, gtid, 0, &rng_state);
-  }
+  RandomGaussianFunc(Params const &params):
+    params(params),
+    distribution(static_cast<FloatType>(params.mean), static_cast<FloatType>(params.stddev)) {}
 
   /// Compute random value and update RNG state
   CUTLASS_DEVICE
   Element operator()() {
-
-    FloatType rnd_r = random_normal_float<FloatType>(&rng_state);
-    FloatType rnd_i = random_normal_float<FloatType>(&rng_state);
-    rnd_r = params.mean + params.stddev * rnd_r;
-    rnd_i = params.mean + params.stddev * rnd_i;
+    oneapi::mkl::rng::device::philox4x32x10<> generator(params.seed,
+      ThreadIdxX() + BlockIdxX() * BlockDimX());
+    FloatType rnd_r = oneapi::mkl::rng::device::generate(distribution, generator);
+    FloatType rnd_i = oneapi::mkl::rng::device::generate(distribution, generator);
 
     Element result;
     if (params.int_scale >= 0) {
@@ -344,7 +338,6 @@ void TensorFillRandomGaussian(
   TensorForEach<Func, Layout::kRank, Params>(
     view.extent(),
     Params(view, typename RandomFunc::Params(seed, mean, stddev, bits, exclude_zero)),
-    /*grid_size*/0, /*block_size*/0
   );
 }
 
@@ -366,7 +359,7 @@ void BlockFillRandomGaussian(
 
   typename RandomFunc::Params params(seed, mean, stddev, bits);
 
-  BlockForEach<Element, RandomFunc>(ptr, capacity, params, /*grid_size*/0, /*block_size*/0);
+  BlockForEach<Element, RandomFunc>(ptr, capacity, params);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,7 +367,7 @@ void BlockFillRandomGaussian(
 
 namespace detail {
 
-/// Computes a random Gaussian distribution
+/// Computes a random Uniform distribution
 template <typename Element>                ///< Element type
 struct RandomUniformFunc {
 
@@ -466,7 +459,108 @@ struct RandomUniformFunc {
   }
 };
 
+/// Computes a random uniform distribution
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+struct TensorFillRandomUniformFunc {
+
+  /// View type
+  using TensorView = TensorView<Element, Layout>;
+
+  /// Scalar type
+  typedef typename TensorView::Element T;
+
+  /// Coordinate in tensor's index space
+  typedef typename TensorView::TensorCoord TensorCoord;
+
+  using RandomFunc = RandomUniformFunc<Element>;
+
+  /// Parameters structure
+  struct Params {
+
+    //
+    // Data members
+    //
+
+    TensorView view;
+    typename RandomFunc::Params random;
+
+    /// Default ctor
+    CUTLASS_HOST_DEVICE
+    Params() { }
+
+    //
+    // Methods
+    //
+
+    /// Construction of Gaussian RNG functor.
+    Params(
+      TensorView view_ = TensorView(),
+      typename RandomFunc::Params random_ = RandomFunc::Params()
+    ):
+      view(view_), random(random_) {
+
+    }
+  };
+
+  //
+  // Data members
+  //
+
+  Params params;
+  RandomFunc random;
+
+  //
+  // Methods
+  //
+
+  /// Device-side initialization of RNG
+  CUTLASS_DEVICE
+  TensorFillRandomUniformFunc(Params const &params): params(params), random(params.random) {
+  }
+
+  /// Compute random value and update RNG state
+  CUTLASS_DEVICE
+  void operator()(TensorCoord const &coord) {
+
+    params.view.at(coord) = random();
+  }
+};
+
+
 } // namespace detail
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Fills a tensor with random values with a uniform random distribution.
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+void TensorFillRandomUniform(
+  TensorView<Element, Layout> view,       ///< destination tensor
+  uint64_t seed,                          ///< seed for RNG
+  typename RealType<Element>::Type max = Element(1), ///< upper bound of distribution
+  typename RealType<Element>::Type min = Element(0), ///< lower bound for distribution
+  int bits = -1) {                        ///< If non-negative, specifies number of fractional bits that
+                                          ///  are not truncated to zero. Permits reducing precision of
+                                          ///  data.
+
+  using RandomFunc = detail::RandomUniformFunc<Element>;
+  using Func = detail::TensorFillRandomUniformFunc<Element, Layout>;
+  using Params = typename Func::Params;
+
+  // TODO does bits line up with int-scale
+  // seems ok in the nvidia impl
+  typename RandomFunc::Params random(seed, max, min, bits);
+
+  TensorForEach<Func, Layout::kRank, Params>(
+    view.extent(),
+    Params(view, random)
+  );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Fills a tensor with random values with a uniform random distribution.
 template <typename Element>

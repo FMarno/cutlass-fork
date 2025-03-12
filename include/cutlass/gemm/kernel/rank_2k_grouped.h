@@ -529,7 +529,7 @@ public:
       int gemm_k_iterations = (problem_size_k - offset_k + Mma1::Shape::kK - 1) / Mma1::Shape::kK;
 
       // Wait for all threads to finish their epilogue phases from the previous tile.
-      __syncthreads();
+      syncthreads();
 
       // Compute threadblock-scoped matrix multiply-add (A x BT)
       mma1(
@@ -589,7 +589,7 @@ public:
           accumulators,
           iterator_C);
 
-        __syncthreads();
+        syncthreads();
 
         accumulators.clear();
       }
