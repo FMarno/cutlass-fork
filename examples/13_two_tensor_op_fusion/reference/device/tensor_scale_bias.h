@@ -61,7 +61,7 @@ template <
   typename OutputTile,
   typename ConvertOp = NumericConverter<typename TensorRefOut::Element, ScalarType>
 >
-__global__ void TensorScaleBiasGemm(
+CUTLASS_GLOBAL void TensorScaleBiasGemm(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -108,7 +108,7 @@ template <
   int kMblock = 4,
   int kNblock = 4
 >
-__global__ void TensorScaleBiasGemmBatched(
+CUTLASS_GLOBAL void TensorScaleBiasGemmBatched(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -174,7 +174,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void TensorScaleBiasConv2d(
+CUTLASS_GLOBAL void TensorScaleBiasConv2d(
   conv::Conv2dProblemSize problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -264,6 +264,19 @@ void TensorScaleBiasGemm(
     (problem_size.n() + block.y * OutputTile::kColumn - 1) / (block.y * OutputTile::kColumn)
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+    const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+    const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+    syclcompat::launch<kernel::TensorScaleBiasGemm<
+    TensorRef<ElementIn, Layout>,
+    TensorRef<ElementOut, Layout>,
+    ScalarType,
+    TensorRef<ScalarType, LayoutScaleBias>,
+    OutputTile,
+    ConvertOp
+  >>(sycl_grid, sycl_block,
+#else
   kernel::TensorScaleBiasGemm<
     TensorRef<ElementIn, Layout>,
     TensorRef<ElementOut, Layout>,
@@ -272,6 +285,7 @@ void TensorScaleBiasGemm(
     OutputTile,
     ConvertOp
   ><<< grid, block >>> (
+#endif
     problem_size,
     tensor_in,
     tensor_out,
@@ -314,6 +328,20 @@ void TensorScaleBiasGemmBatched(
     batch_count % std::numeric_limits<uint16_t>::max()
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::launch<kernel::TensorScaleBiasGemmBatched<
+    TensorRef<ElementIn, Layout>,
+    TensorRef<ElementOut, Layout>,
+    ScalarType,
+    TensorRef<ScalarType, LayoutScaleBias>,
+    ConvertOp,
+    kMblock,
+    kNblock
+  >>(sycl_grid, sycl_block,
+#else
   kernel::TensorScaleBiasGemmBatched<
     TensorRef<ElementIn, Layout>,
     TensorRef<ElementOut, Layout>,
@@ -323,6 +351,7 @@ void TensorScaleBiasGemmBatched(
     kMblock,
     kNblock
   ><<< grid, block >>> (
+#endif
     problem_size,
     tensor_in,
     tensor_out,
@@ -367,6 +396,22 @@ void TensorScaleBiasConv2d(
   dim3 grid(uint32_t(blocks_m), (problem_size.K + (kCtaShapeN * kThreadN) - 1) / (kCtaShapeN * kThreadN));
 
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+  syclcompat::launch<kernel::TensorScaleBiasConv2d<
+    TensorRef<ElementIn, Layout>,
+    TensorRef<ElementOut, Layout>,
+    ScalarType,
+    TensorRef<ScalarType, LayoutScaleBias>,
+    ConvertOp,
+    kThreadM,
+    kThreadN,
+    kCtaShapeM,
+    kCtaShapeN
+  >>(sycl_grid, sycl_block,
+#else
   kernel::TensorScaleBiasConv2d<
     TensorRef<ElementIn, Layout>,
     TensorRef<ElementOut, Layout>,
@@ -378,6 +423,7 @@ void TensorScaleBiasConv2d(
     kCtaShapeM,
     kCtaShapeN
   ><<< grid, block >>> (
+#endif
     problem_size,
     tensor_in,
     tensor_out,

@@ -570,7 +570,7 @@ class MmaPipelinedFromSharedMemory : public MmaBaseFromSharedMemory<
 
     ++this->smem_iterator_B_;
 
-    __syncthreads();
+    syncthreads();
 
     // remember that WarpFragmentAScale and WarpIteratorAScale are empty/no-op
     // if scaling is disabled.
@@ -630,7 +630,7 @@ class MmaPipelinedFromSharedMemory : public MmaBaseFromSharedMemory<
             this->smem_iterator_B_.store(transform_B(tb_frag_B));
           }
 
-          __syncthreads();
+          syncthreads();
 
           ++this->smem_iterator_B_;
 
@@ -929,7 +929,7 @@ class MmaMultistageFromSharedMemory : public MmaBaseFromSharedMemory<
     // mainloop
     cutlass::arch::cp_async_fence();
     cutlass::arch::cp_async_wait<0>();
-    __syncthreads();
+    syncthreads();
   }
 
   CUTLASS_DEVICE
@@ -1066,7 +1066,7 @@ class MmaMultistageFromSharedMemory : public MmaBaseFromSharedMemory<
 
     // DEPBAR+SYNC
     cutlass::arch::cp_async_wait<kNumStagesConcurrentLoad - 1>();
-    __syncthreads();
+    syncthreads();
 
     // remember that WarpFragmentAScale and WarpIteratorAScale are no-op/empty
     // if scaling is disabled.
@@ -1210,7 +1210,7 @@ class MmaMultistageFromSharedMemory : public MmaBaseFromSharedMemory<
 
           // Waits until kStages-2 stages have committed.
           arch::cp_async_wait<kNumStagesConcurrentLoad - 1>();
-          __syncthreads();
+          syncthreads();
 
           // Move to the next stage
           iterator_B1.add_tile_offset({1, 0});

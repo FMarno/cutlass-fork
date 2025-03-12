@@ -122,19 +122,19 @@ foreach(EXAMPLE
   # 07_volta_tensorop_gemm
   # 08_turing_tensorop_gemm
   # 09_turing_tensorop_conv2dfprop
-  # 10_planar_complex
-  # 11_planar_complex_array
-  # 12_gemm_bias_relu
-  # 13_two_tensor_op_fusion
+  10_planar_complex
+  11_planar_complex_array
+  12_gemm_bias_relu
+  13_two_tensor_op_fusion
   14_ampere_tf32_tensorop_gemm
   15_ampere_sparse_tensorop_gemm
   16_ampere_tensorop_conv2dfprop
-  # 17_fprop_per_channel_bias
+  17_fprop_per_channel_bias
   18_ampere_fp64_tensorop_affine2_gemm
-  # 19_tensorop_canonical
-  # 20_simt_canonical
-  # 21_quaternion_gemm
-  # 22_quaternion_conv
+  # 19_tensorop_canonical # __shared__ local variables not allowed in __host__ functions
+  # 20_simt_canonical # __shared__ local variables not allowed in __host__ functions
+  21_quaternion_gemm
+  22_quaternion_conv
   23_ampere_gemm_operand_reduction_fusion
   24_gemm_grouped
   25_ampere_fprop_mainloop_fusion
@@ -152,7 +152,7 @@ foreach(EXAMPLE
   37_gemm_layernorm_gemm_fusion
   38_syr2k_grouped
   cute
-  39_gemm_permute
+  #39_gemm_permute
   41_fused_multi_head_attention
   42_ampere_tensorop_group_conv
   43_ell_block_sparse_gemm

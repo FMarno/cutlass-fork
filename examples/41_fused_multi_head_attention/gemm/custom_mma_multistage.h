@@ -539,7 +539,7 @@ class CustomMmaMultistage : public CustomMmaBase<Shape_, Policy_, Stages> {
 
     // Waits until kStages-2 stages have committed.
     cutlass::arch::cp_async_wait<kNumStagesConcurrentLoad - 1>();
-    __syncthreads();
+    syncthreads();
 
     // Pair of fragments used to overlap shared memory loads and math
     // instructions
@@ -690,7 +690,7 @@ class CustomMmaMultistage : public CustomMmaBase<Shape_, Policy_, Stages> {
 
           // Waits until kStages-2 stages have committed.
           cutlass::arch::cp_async_wait<kNumStagesConcurrentLoad - 1>();
-          __syncthreads();
+          syncthreads();
 
           // Move to the next stage
           iterator_A.add_tile_offset({0, 1});

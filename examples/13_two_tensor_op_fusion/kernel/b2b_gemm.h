@@ -682,7 +682,7 @@ struct B2bGemm {
 
     if (cutlass::gemm::threadblock::detail::IsGroupedSwizzle<ThreadblockSwizzle>::value) {
       // Wait for all threads to finish their epilogue phases from the previous tile.
-      __syncthreads();
+      syncthreads();
     }
 
     // Construct thread-scoped matrix multiply

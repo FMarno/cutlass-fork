@@ -335,13 +335,13 @@ class EpiloguePipelined : public EpilogueBase<
       // Convert and store fragment
       //
 
-      __syncthreads();
+      syncthreads();
 
       acc2smem_source_not_needed<cutlass::make_index_sequence<
           OutputTileIterator::kIterations / Base::kFragmentsPerIteration>>::
           push(iter, accum_fragment_iterator, this->warp_tile_iterator_);
 
-      __syncthreads();
+      syncthreads();
 
       //
       // Load fragments from shared memory
@@ -460,7 +460,7 @@ class EpiloguePipelined : public EpilogueBase<
 #pragma unroll(IterationsUnroll ? OutputTileIterator::kIterations : 1)
     for (int iter = 0; iter < OutputTileIterator::kIterations; ++iter) {
       if (iter > 0) {
-        __syncthreads();
+        syncthreads();
       }
       //
       // Load the source for next iteration (pipelining)
@@ -474,7 +474,7 @@ class EpiloguePipelined : public EpilogueBase<
           cutlass::make_index_sequence<OutputTileIterator::kIterations>>::
           push(iter, accum_fragment_iterator, this->warp_tile_iterator_);
 
-      __syncthreads();
+      syncthreads();
 
       //
       // Load fragments from shared memory

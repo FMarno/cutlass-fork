@@ -644,6 +644,8 @@ struct TensorFillDiagonalFunc {
   }
 };
 
+} // namespace detail
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Fills a tensor with random values with a uniform random distribution.
