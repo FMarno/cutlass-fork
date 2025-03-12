@@ -45,7 +45,7 @@
 namespace cutlass::distributed::kernel {
 
 template <int NP, typename IntType, int Iterations, typename FlagType>
-__global__ void full_barrier_kernel(
+CUTLASS_GLOBAL void full_barrier_kernel(
     cutlass::Array<IntType*, NP> device_arrival_ptrs,
     cutlass::Array<FlagType*, Iterations> iteration_flag_ptrs,
     IntType device_idx) {

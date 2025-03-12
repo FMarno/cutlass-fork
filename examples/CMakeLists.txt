@@ -136,28 +136,28 @@ foreach(EXAMPLE
   # 21_quaternion_gemm
   # 22_quaternion_conv
   23_ampere_gemm_operand_reduction_fusion
-  # 24_gemm_grouped
+  24_gemm_grouped
   25_ampere_fprop_mainloop_fusion
   26_ampere_wgrad_mainloop_fusion
   27_ampere_3xtf32_fast_accurate_tensorop_gemm
   28_ampere_3xtf32_fast_accurate_tensorop_fprop
   29_ampere_3xtf32_fast_accurate_tensorop_complex_gemm
-  # 30_wgrad_split_k
-  # 31_basic_syrk
-  # 32_basic_trmm
+  30_wgrad_split_k
+  31_basic_syrk
+  32_basic_trmm
   33_ampere_3xtf32_tensorop_symm
-  # 34_transposed_conv2d
+  34_transposed_conv2d
   35_gemm_softmax
-  # 36_gather_scatter_fusion
-  # 37_gemm_layernorm_gemm_fusion
-  # 38_syr2k_grouped
+  36_gather_scatter_fusion
+  37_gemm_layernorm_gemm_fusion
+  38_syr2k_grouped
   cute
-  # 39_gemm_permute
-  # 41_fused_multi_head_attention
+  39_gemm_permute
+  41_fused_multi_head_attention
   42_ampere_tensorop_group_conv
-  # 43_ell_block_sparse_gemm
-  # 45_dual_gemm
-  # 46_depthwise_simt_conv2dfprop
+  43_ell_block_sparse_gemm
+  45_dual_gemm
+  46_depthwise_simt_conv2dfprop
   47_ampere_gemm_universal_streamk
   48_hopper_warp_specialized_gemm
   49_hopper_gemm_with_collective_builder
@@ -169,13 +169,13 @@ foreach(EXAMPLE
   55_hopper_mixed_dtype_gemm
   56_hopper_ptr_array_batched_gemm
   57_hopper_grouped_gemm
-  # 58_ada_fp8_gemm
+  58_ada_fp8_gemm
   59_ampere_gather_scatter_conv
   61_hopper_gemm_with_topk_and_softmax
   62_hopper_sparse_gemm
   63_hopper_gemm_with_weight_prefetch
-  # 64_ada_fp8_gemm_grouped
-  # 65_distributed_gemm
+  64_ada_fp8_gemm_grouped
+  # 65_distributed_gemm error: invalid instruction mnemonic 'ld.global.cv.u32'
   67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
   69_hopper_mixed_dtype_grouped_gemm
   70_blackwell_gemm

@@ -391,7 +391,7 @@ struct GroupedProblemVisitor<ProblemSizeHelper,
     int32_t prefetch_idx = (tiles_computed % kPrefetchTileCount);
     if (prefetch_idx == 0) {
       // Ensure all previous stores to shared memory have been completed
-      __syncthreads();
+      syncthreads();
     }
 
     auto problem_info = shared_storage.prefetched_problems[prefetch_idx];
@@ -400,7 +400,7 @@ struct GroupedProblemVisitor<ProblemSizeHelper,
     if ((tiles_computed % kPrefetchTileCount) == 0) {
       // Begin prefetching next set of tiles. Synchronize first to ensure that
       // we don't overwrite the current buffer while someone else is using it.
-      __syncthreads();
+      syncthreads();
       prefetch_tiles();
     }
 
