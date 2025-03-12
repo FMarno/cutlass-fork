@@ -561,6 +561,90 @@ void TensorFillRandomUniform(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace detail {
+
+/// Functor to fill a tensor with zeros off the diagonal and a uniform value on the diagonal.
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+struct TensorFillDiagonalFunc {
+
+  /// View type
+  using TensorView = TensorView<Element, Layout>;
+
+  /// Scalar type
+  typedef typename TensorView::Element T;
+
+  /// Coordinate in tensor's index space
+  typedef typename TensorView::TensorCoord TensorCoord;
+
+  /// Parameters structure
+  struct Params {
+
+    //
+    // Data members
+    //
+
+    TensorView view;
+    Element diag;
+    Element other;
+
+    /// Default ctor
+    CUTLASS_HOST_DEVICE
+    Params() { }
+
+    //
+    // Methods
+    //
+
+    Params(
+      TensorView view_ = TensorView(),
+      Element diag_ = Element(1),
+      Element other_ = Element(0)
+    ):
+      view(view_), diag(diag_), other(other_) {
+
+    }
+  };
+
+  //
+  // Data members
+  //
+
+  /// Parameters object
+  Params params;
+
+  //
+  // Methods
+  //
+
+  /// Device-side initialization of RNG
+  CUTLASS_DEVICE
+  TensorFillDiagonalFunc(Params const &params): params(params) {
+
+  }
+
+  /// Updates the tensor
+  CUTLASS_DEVICE
+  void operator()(TensorCoord const &coord) {
+
+    bool is_diag = true;
+
+    CUTLASS_PRAGMA_UNROLL
+    for (int i = 1; i < Layout::kRank; ++i) {
+      if (coord[i] != coord[i - 1]) {
+        is_diag = false;
+        break;
+      }
+    }
+
+    params.view.at(coord) = (is_diag ? params.diag : params.other);
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Fills a tensor with random values with a uniform random distribution.
 template <typename Element>
@@ -579,6 +663,38 @@ void BlockFillRandomUniform(
 
   typename RandomFunc::Params params(seed, max, min, bits);
   BlockForEach<Element, RandomFunc>(ptr, capacity, params);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Fills a tensor everywhere with a unique value for its diagonal.
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+void TensorFillDiagonal(
+  TensorView<Element, Layout> view,       ///< destination tensor
+  Element diag = Element(1),              ///< value to write in the diagonal
+  Element other = Element(0)) {           ///< value to write off the diagonal
+
+  typedef detail::TensorFillDiagonalFunc<Element, Layout> Func;
+  typedef typename Func::Params Params;
+
+  TensorForEach<Func, Layout::kRank, Params>(
+    view.extent(),
+    Params(view, diag, other)
+  );
+}
+
+/// Fills a tensor with a uniform value
+
+template <
+  typename Element,               ///< Element type
+  typename Layout>                ///< Layout function
+void TensorFill(
+  TensorView<Element, Layout> view,         ///< destination tensor
+  Element val = Element(0)) {               ///< value to uniformly fill it with
+
+  TensorFillDiagonal(view, val, val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
