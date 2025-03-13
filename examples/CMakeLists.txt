@@ -66,7 +66,7 @@ function(cutlass_example_add_executable NAME)
     ${NAME}
     PRIVATE
     CUTLASS
-    cutlass_tools_util_includes
+    cutlass_library_includes
     $<$<BOOL:${CUTLASS_ENABLE_CUBLAS}>:nvidia::cublas>
     $<$<BOOL:${ADD_CUDA}>:cuda>
     )
@@ -112,18 +112,18 @@ function(cutlass_example_add_executable NAME)
 endfunction()
 
 foreach(EXAMPLE
-  # 00_basic_gemm
-  # 01_cutlass_utilities
-  # 02_dump_reg_shmem
+  00_basic_gemm
+  01_cutlass_utilities
+  02_dump_reg_shmem
   03_visualize_layout
-  # 04_tile_iterator
-  # 05_batched_gemm
-  # 06_splitK_gemm
-  # 07_volta_tensorop_gemm
-  # 08_turing_tensorop_gemm
-  # 09_turing_tensorop_conv2dfprop
-  10_planar_complex
-  11_planar_complex_array
+  04_tile_iterator
+  05_batched_gemm
+  06_splitK_gemm
+  07_volta_tensorop_gemm
+  08_turing_tensorop_gemm
+  09_turing_tensorop_conv2dfprop
+  # 10_planar_complex
+  # 11_planar_complex_array
   12_gemm_bias_relu
   13_two_tensor_op_fusion
   14_ampere_tf32_tensorop_gemm
@@ -131,8 +131,8 @@ foreach(EXAMPLE
   16_ampere_tensorop_conv2dfprop
   17_fprop_per_channel_bias
   18_ampere_fp64_tensorop_affine2_gemm
-  # 19_tensorop_canonical # __shared__ local variables not allowed in __host__ functions
-  # 20_simt_canonical # __shared__ local variables not allowed in __host__ functions
+  19_tensorop_canonical
+  20_simt_canonical
   21_quaternion_gemm
   22_quaternion_conv
   23_ampere_gemm_operand_reduction_fusion
@@ -152,7 +152,7 @@ foreach(EXAMPLE
   37_gemm_layernorm_gemm_fusion
   38_syr2k_grouped
   cute
-  #39_gemm_permute
+  39_gemm_permute
   41_fused_multi_head_attention
   42_ampere_tensorop_group_conv
   43_ell_block_sparse_gemm
@@ -175,7 +175,7 @@ foreach(EXAMPLE
   62_hopper_sparse_gemm
   63_hopper_gemm_with_weight_prefetch
   64_ada_fp8_gemm_grouped
-  # 65_distributed_gemm error: invalid instruction mnemonic 'ld.global.cv.u32'
+  65_distributed_gemm
   67_hopper_fp8_warp_specialized_gemm_with_blockwise_scaling
   69_hopper_mixed_dtype_grouped_gemm
   70_blackwell_gemm
@@ -192,5 +192,5 @@ foreach(EXAMPLE
 endforeach()
 
 if (CUTLASS_ENABLE_SYCL)
-    add_subdirectory(sycl)
+	#    add_subdirectory(sycl)
 endif()

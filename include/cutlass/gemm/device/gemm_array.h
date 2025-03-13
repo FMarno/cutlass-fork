@@ -447,7 +447,18 @@ public:
     }
 
     cutlass::arch::synclog_setup();
+#if defined(CUTLASS_ENABLE_SYCL)
+    const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
+    const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+
+    syclcompat::experimental::launch_properties l_props{
+          sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size)
+    };
+    syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props};
+    syclcompat::experimental::launch<cutlass::Kernel<GemmKernel>>(policy, params_);
+#else
     cutlass::Kernel<GemmKernel><<<grid, block, smem_size, stream>>>(params_);
+#endif
 
     result = cudaGetLastError();
 

@@ -109,13 +109,11 @@ struct RandomGaussianFunc {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   RandomGaussianFunc(Params const &params):
     params(params),
     distribution(static_cast<FloatType>(params.mean), static_cast<FloatType>(params.stddev)) {}
 
   /// Compute random value and update RNG state
-  CUTLASS_DEVICE
   Element operator()() {
     oneapi::mkl::rng::device::philox4x32x10<> generator(params.seed,
       ThreadIdxX() + BlockIdxX() * BlockDimX());
@@ -204,13 +202,11 @@ struct RandomGaussianFunc<complex<Real>> {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   RandomGaussianFunc(Params const &params):
     params(params),
     distribution(static_cast<FloatType>(params.mean), static_cast<FloatType>(params.stddev)) {}
 
   /// Compute random value and update RNG state
-  CUTLASS_DEVICE
   Element operator()() {
     oneapi::mkl::rng::device::philox4x32x10<> generator(params.seed,
       ThreadIdxX() + BlockIdxX() * BlockDimX());
@@ -300,13 +296,11 @@ struct TensorFillRandomGaussianFunc {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   TensorFillRandomGaussianFunc(Params const &params): params(params), random(params.random) {
 
   }
 
   /// Compute random value and update RNG state
-  CUTLASS_DEVICE
   void operator()(TensorCoord const &coord) {
 
     params.view.at(coord) = random();
@@ -396,7 +390,6 @@ struct RandomUniformFunc {
     FloatType float_scale_down;
 
     /// Default ctor
-    CUTLASS_HOST
     Params() { }
 
     //
@@ -437,7 +430,6 @@ struct RandomUniformFunc {
       distribution(static_cast<FloatType>(params.min), static_cast<FloatType>(params.max)){}
 
   /// Compute random value and update RNG state
-  CUTLASS_HOST_DEVICE
   Element operator()() {
     oneapi::mkl::rng::device::philox4x32x10<> generator(params.seed,
       ThreadIdxX() + BlockIdxX() * BlockDimX());
@@ -487,7 +479,6 @@ struct TensorFillRandomUniformFunc {
     typename RandomFunc::Params random;
 
     /// Default ctor
-    CUTLASS_HOST_DEVICE
     Params() { }
 
     //
@@ -516,12 +507,10 @@ struct TensorFillRandomUniformFunc {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   TensorFillRandomUniformFunc(Params const &params): params(params), random(params.random) {
   }
 
   /// Compute random value and update RNG state
-  CUTLASS_DEVICE
   void operator()(TensorCoord const &coord) {
 
     params.view.at(coord) = random();
@@ -592,7 +581,6 @@ struct TensorFillDiagonalFunc {
     Element other;
 
     /// Default ctor
-    CUTLASS_HOST_DEVICE
     Params() { }
 
     //
@@ -621,13 +609,11 @@ struct TensorFillDiagonalFunc {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   TensorFillDiagonalFunc(Params const &params): params(params) {
 
   }
 
   /// Updates the tensor
-  CUTLASS_DEVICE
   void operator()(TensorCoord const &coord) {
 
     bool is_diag = true;
@@ -730,7 +716,6 @@ struct TensorFillLinearFunc {
     Element s;
 
     /// Default ctor
-    CUTLASS_HOST_DEVICE
     Params() { }
 
     //
@@ -758,14 +743,12 @@ struct TensorFillLinearFunc {
   //
 
   /// Device-side initialization of RNG
-  CUTLASS_DEVICE
   TensorFillLinearFunc(Params const &params): params(params) {
 
   }
   TensorFillLinearFunc(TensorFillLinearFunc const &) = default;
 
   /// Compute random value and update RNG state
-  CUTLASS_DEVICE
   void operator()(TensorCoord const &coord) {
 
     Element sum = params.s;

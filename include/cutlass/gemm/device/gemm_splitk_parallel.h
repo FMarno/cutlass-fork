@@ -358,7 +358,18 @@ public:
     }
 
     cutlass::arch::synclog_setup();
+#if defined(CUTLASS_ENABLE_SYCL)
+    const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+
+    syclcompat::experimental::launch_properties l_props{
+          sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size)
+    };
+    syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props};
+    syclcompat::experimental::launch<Kernel<GemmKernel>>(policy, gemm_params_);
+#else
     Kernel<GemmKernel><<<grid, block, smem_size, stream>>>(gemm_params_);
+#endif
 
     result = cudaGetLastError();
 
@@ -373,7 +384,14 @@ public:
     block = ReductionKernel::block_shape();
     grid = ReductionKernel::grid_shape(gemm_params_.problem_size.mn());
 
+#if defined(CUTLASS_ENABLE_SYCL)
+    const syclcompat::dim3 reduction_sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 reduction_sycl_block(block.x, block.y, block.z);
+
+    syclcompat::launch<Kernel<ReductionKernel>>(reduction_sycl_grid, reduction_sycl_block, reduction_params_);
+#else
     Kernel<ReductionKernel><<< grid, block, 0, stream >>>(reduction_params_);
+#endif
 
     result = cudaGetLastError();
 

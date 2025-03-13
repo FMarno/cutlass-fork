@@ -125,6 +125,7 @@ class TensorView : public TensorRef<Element_, Layout_> {
   CUTLASS_HOST_DEVICE
   TensorView() { }
 
+
   /// Constructs a TensorView object
   CUTLASS_HOST_DEVICE
   TensorView(
@@ -145,16 +146,20 @@ class TensorView : public TensorRef<Element_, Layout_> {
     Base(ref), extent_(extent) {
   
   }
+#if defined(CUTLASS_ENABLE_SYCL)
+  CUTLASS_HOST_DEVICE
+  TensorView(TensorView<Element_, Layout_> const&) = default;
 
+  CUTLASS_HOST_DEVICE
+  TensorView(
+    std::conditional_t<std::is_const_v<Element_>, NonConstTensorView, ConstTensorView> const& view)
+  : Base(view), extent_(view.extent_) { }
+#else
   /// Converting constructor from TensorRef to non-constant data.
   CUTLASS_HOST_DEVICE
   TensorView(
-    NonConstTensorView const &view        ///< TensorView to non-const data
-  #if defined(CUTLASS_ENABLE_SYCL)
-  // default constructor needed to make this device_copyable
-  ) = default;
-#else
-  ): Base(view), extent_(view.extent_) { }
+    NonConstTensorView const &view)        ///< TensorView to non-const data
+  : Base(view), extent_(view.extent_) { }
 #endif
 
   /// Updates the pointer and layout object
