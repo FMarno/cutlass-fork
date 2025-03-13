@@ -530,7 +530,7 @@ public:
 
     // DEPBAR+SYNC
     cutlass::arch::cp_async_wait<Base::kStages - 2>();
-    syncthreads();
+    __syncthreads();
 
     // Pair of fragments used to overlap shared memory loads and math
     // instructions
@@ -626,7 +626,7 @@ public:
 
           // Waits until kStages-2 stages have committed.
           arch::cp_async_wait<Base::kStages - 2>();
-          syncthreads();
+          __syncthreads();
 
           // Move to the next stage
           iterator_A0.add_tile_offset({0, 1});
@@ -677,14 +677,14 @@ public:
     // Insert fence and wait for all outstanding cp.async operations to commit.
     cutlass::arch::cp_async_fence();
     cutlass::arch::cp_async_wait<0>();
-    syncthreads();
+    __syncthreads();
 
     /// Epilogue for the first Implicit Gemm
     Epilogue0 epilogue0;
 
     epilogue0(output_op_0, smem_iterator_D0_, accum0, iterator_accum0_scale, iterator_accum0_bias);
 
-    syncthreads();
+    __syncthreads();
 
 
     // 2nd Gemm
@@ -738,7 +738,7 @@ public:
 
     // DEPBAR+SYNC
     cutlass::arch::cp_async_wait<Base::kStages - 2>();
-    syncthreads();
+    __syncthreads();
 
     // Pair of fragments used to overlap shared memory loads and math
     // instructions
@@ -830,7 +830,7 @@ public:
 
           // Waits until kStages-2 stages have committed.
           arch::cp_async_wait<Base::kStages - 2>();
-          syncthreads();
+          __syncthreads();
 
           // Move to the next stage
           iterator_B1.add_tile_offset({1, 0});
@@ -873,7 +873,7 @@ public:
     // Commit and drain all pending and predicated cp.async pnz from the GEMM mainloop
     cutlass::arch::cp_async_fence();
     cutlass::arch::cp_async_wait<0>();
-    syncthreads();
+    __syncthreads();
 
   }
 };

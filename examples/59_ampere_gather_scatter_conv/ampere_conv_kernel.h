@@ -177,7 +177,7 @@ struct AmpereUnpredicatedFprop {
   // Conv functor
   //
   template <class EngineFlt, class TensorActivation, class TensorOutput>
-  void CUTLASS_DEVICE
+  void __device__
   operator()(cute::Tensor<EngineFlt, GmemLayoutFlt> mFlt, // ( K,        (C,T,R,S))
              TensorActivation                       mAct, // ((N,Z,P,Q), (C,T,R,S))
              TensorOutput                           mOut, // ( K,        (N,Z,P,Q))
@@ -243,7 +243,7 @@ struct AmpereUnpredicatedFprop {
     auto tCsC = smem_thr_copy_C.partition_D(sC);
     copy(smem_tiled_copy_C, tCrC, tCsC);
 
-    syncthreads();
+    __syncthreads();
 
     GmemTiledCopyOut gmem_tiled_copy_C;
     auto gmem_thr_copy_C = gmem_tiled_copy_C.get_slice(threadIdx.x);

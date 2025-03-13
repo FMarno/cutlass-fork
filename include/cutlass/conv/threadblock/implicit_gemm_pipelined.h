@@ -218,7 +218,7 @@ public:
     ++this->smem_iterator_A_;
     ++this->smem_iterator_B_;
 
-    syncthreads();
+    __syncthreads();
 
     // Pair of fragments used to overlap shared memory loads and math instructions
     WarpFragmentA warp_frag_A[2];
@@ -264,7 +264,7 @@ public:
 
           this->smem_iterator_B_.store(transform_B(tb_frag_B));
 
-          syncthreads();
+          __syncthreads();
           
           ++this->smem_iterator_A_;
           ++this->smem_iterator_B_;

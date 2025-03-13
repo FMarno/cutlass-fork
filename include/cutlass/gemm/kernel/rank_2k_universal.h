@@ -392,7 +392,7 @@ public:
       offset_k = threadblock_tile_offset.k() * params.gemm_k_size;
     }
 
-    syncthreads();
+    __syncthreads();
 
     // Compute initial location in logical coordinates
     cutlass::MatrixCoord tb_offset_MxK{
@@ -598,7 +598,7 @@ public:
         semaphore.release(lock);
       }
 
-      syncthreads();
+      __syncthreads();
 
       accumulators.clear();
     }

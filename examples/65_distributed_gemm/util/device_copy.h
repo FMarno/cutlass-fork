@@ -54,7 +54,7 @@ void device_copy(TensorSource      tensor_source,
 
 
 template <typename TensorSource, typename TensorDestination>
-CUTLASS_GLOBAL void device_copy_kernel(TensorSource const tensor_source,
+__global__ void device_copy_kernel(TensorSource const tensor_source,
                                    TensorDestination tensor_destination) {
   auto linear_idx = blockIdx.x * blockDim.x + threadIdx.x;
   using ElementSrc = typename TensorSource::value_type;
@@ -79,8 +79,8 @@ void device_copy(TensorSource      tensor_source,
   dim3 grid(grid_size);
   dim3 block(NumThreads);
 #if defined(CUTLASS_ENABLE_SYCL)
-    const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
-    const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+    const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
     syclcompat::launch<device_copy_kernel<decltype(tensor_source), decltype(tensor_destination)>>(sycl_grid, sycl_block, tensor_source, tensor_destination);
 #else
   device_copy_kernel<<<grid, block, 0, stream>>>(tensor_source, tensor_destination);

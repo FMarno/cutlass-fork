@@ -275,12 +275,12 @@ public:
       // Convert and store fragment
       //
 
-      syncthreads();
+      __syncthreads();
 
       acc2smem_source_needed<cutlass::make_index_sequence<Visitor::kIterations>>::push(
           iter_idx, accum_fragment_iterator, this->warp_tile_iterator_);
 
-      syncthreads();
+      __syncthreads();
 
       //
       // Load fragments from shared memory

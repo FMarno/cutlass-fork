@@ -382,7 +382,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////
     // Waits until kStages-2 stages have committed. 
     cutlass::arch::cp_async_wait<Base::kStages - 2>();
-    syncthreads();
+    __syncthreads();
 
     // Pair of fragments used to overlap shared memory loads and math
     // instructions
@@ -483,7 +483,7 @@ public:
 
           // Waits until kStages-2 stages of cp.async have committed
           arch::cp_async_wait<Base::kStages - 2>();
-          syncthreads();
+          __syncthreads();
 
           // Move to the next cta
           iterator_A.advance();
@@ -536,7 +536,7 @@ public:
     // Insert fence and wait for all outstanding cp.async operations to commit.
     cutlass::arch::cp_async_fence();
     cutlass::arch::cp_async_wait<0>();
-    syncthreads();
+    __syncthreads();
 
   }
 

@@ -261,7 +261,7 @@ __global__ void kernel(
     }
   }
 
-  syncthreads();
+  __syncthreads();
   
   //
   // Instantiate a warp-level matrix multiply operator given the fundamental instruction shape (8x8x4),
@@ -292,7 +292,7 @@ __global__ void kernel(
     {&C[0][0], kN},
     threadIdx.x);
 
-  syncthreads();
+  __syncthreads();
   
   // Copy data into SMEM
   if (threadIdx.x == 0) {

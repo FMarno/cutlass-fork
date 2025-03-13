@@ -61,7 +61,7 @@ template <
   typename OutputTile,
   typename ConvertOp = NumericConverter<typename TensorRefOut::Element, ScalarType>
 >
-CUTLASS_GLOBAL void TensorScaleBiasGemm(
+__global__ void TensorScaleBiasGemm(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -108,7 +108,7 @@ template <
   int kMblock = 4,
   int kNblock = 4
 >
-CUTLASS_GLOBAL void TensorScaleBiasGemmBatched(
+__global__ void TensorScaleBiasGemmBatched(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -174,7 +174,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-CUTLASS_GLOBAL void TensorScaleBiasConv2d(
+__global__ void TensorScaleBiasConv2d(
   conv::Conv2dProblemSize problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -265,8 +265,8 @@ void TensorScaleBiasGemm(
   );
 
 #if defined(CUTLASS_ENABLE_SYCL)
-    const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
-    const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+    const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
 
     syclcompat::launch<kernel::TensorScaleBiasGemm<
     TensorRef<ElementIn, Layout>,
@@ -329,8 +329,8 @@ void TensorScaleBiasGemmBatched(
   );
 
 #if defined(CUTLASS_ENABLE_SYCL)
-  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
-  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
 
   syclcompat::launch<kernel::TensorScaleBiasGemmBatched<
     TensorRef<ElementIn, Layout>,
@@ -397,8 +397,8 @@ void TensorScaleBiasConv2d(
 
 
 #if defined(CUTLASS_ENABLE_SYCL)
-  const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
-  const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
 
   syclcompat::launch<kernel::TensorScaleBiasConv2d<
     TensorRef<ElementIn, Layout>,

@@ -346,8 +346,8 @@ public:
     else {
       cutlass::arch::synclog_setup();
 #if defined(CUTLASS_ENABLE_SYCL)
-      const auto sycl_grid = syclcompat::dim3(grid.x, grid.y, grid.z);
-      const auto sycl_block = syclcompat::dim3(block.x, block.y, block.z);
+      const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+      const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
 
       syclcompat::experimental::launch_properties l_props{
             sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size)

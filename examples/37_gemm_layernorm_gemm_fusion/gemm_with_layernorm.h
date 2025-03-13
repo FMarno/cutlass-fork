@@ -1008,8 +1008,8 @@ public:
     int gemm_smem_size = int(sizeof(typename GemmEpilogueFusion::SharedStorage));
 
 #if defined(CUTLASS_ENABLE_SYCL)
-    const auto sycl_gemm_grid = syclcompat::dim3(gemm_grid.x, gemm_grid.y, gemm_grid.z);
-    const auto sycl_gemm_block = syclcompat::dim3(gemm_block.x, gemm_block.y, gemm_block.z);
+    const syclcompat::dim3 sycl_gemm_grid(gemm_grid.x, gemm_grid.y, gemm_grid.z);
+    const syclcompat::dim3 sycl_gemm_block(gemm_block.x, gemm_block.y, gemm_block.z);
 
     syclcompat::experimental::launch_properties gemm_l_props{
           sycl::ext::oneapi::experimental::work_group_scratch_size(gemm_smem_size)
@@ -1045,8 +1045,8 @@ public:
     dim3 final_reduction_grid(block_per_row);
 
 #if defined(CUTLASS_ENABLE_SYCL)
-    const auto sycl_final_reduction_grid = syclcompat::dim3(final_reduction_grid.x, final_reduction_grid.y, final_reduction_grid.z);
-    const auto sycl_final_reduction_block = syclcompat::dim3(final_reduction_block.x, final_reduction_block.y, final_reduction_block.z);
+    const syclcompat::dim3 sycl_final_reduction_grid(final_reduction_grid.x, final_reduction_grid.y, final_reduction_grid.z);
+    const syclcompat::dim3 sycl_final_reduction_block(final_reduction_block.x, final_reduction_block.y, final_reduction_block.z);
 
     syclcompat::experimental::launch_properties final_reduction_l_props{
           sycl::ext::oneapi::experimental::work_group_scratch_size(sizeof(typename ApplyFinalReductionKernel::SharedStorage))

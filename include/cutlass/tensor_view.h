@@ -159,7 +159,8 @@ class TensorView : public TensorRef<Element_, Layout_> {
   CUTLASS_HOST_DEVICE
   TensorView(
     NonConstTensorView const &view)        ///< TensorView to non-const data
-  : Base(view), extent_(view.extent_) { }
+  :
+    Base(view), extent_(view.extent_) { }
 #endif
 
   /// Updates the pointer and layout object

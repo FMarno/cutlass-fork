@@ -73,9 +73,10 @@ using example::IndexedGather;
 using example::CustomStride;
 
 template<class Operator, class FilterTensor, class ActivationTensor, class OutputTensor>
-CUTLASS_GLOBAL
+__global__
 __launch_bounds__(Operator::MaxThreadsPerBlock, Operator::MinBlocksPerMultiprocessor)
 void kernel_entrypoint(FilterTensor mFlt, ActivationTensor mAct, OutputTensor mOut) {
+  // TODO(codeplay): if branch maybe not needed
 #if defined(CUTLASS_ENABLE_SYCL)
   char* smem_buf = static_cast<char*>(sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
 #else

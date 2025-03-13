@@ -111,7 +111,7 @@ class Iterator{
           base_idx_(base_idx),
           k_shape_(k_shape),
           ell_increment_(ell_stride * block_size),
-          array_length_((problem_size_k + block_size_ - 1) / block_size_), 
+          array_length_((problem_size_k + block_size_ - 1) / block_size_),
           residue_shape_(problem_size_k % k_shape_),
           is_residue_tile_(residue_shape_ != 0),
           smem_col_idx_(reinterpret_cast<int*>(&shared_storage_base.array)),
@@ -119,11 +119,11 @@ class Iterator{
           lane_(thread_idx % 32) {
 
       load_ell_indices();
-      syncthreads();
-          
+      __syncthreads();
+
       is_pow2_ = ((block_size_ & (block_size_ - 1)) == 0);
       if( is_pow2_ && k_shape <= block_size_ ) lane_ = 0;
-      
+
       col_idx_base_ = smem_col_idx_[(smem_offset_ + lane_) & SmemMask] * ell_increment_;
 
       pow2_ = 0;

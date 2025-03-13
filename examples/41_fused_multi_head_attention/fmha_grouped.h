@@ -563,7 +563,7 @@ public:
               problem_size_1_k);
         };
 
-        syncthreads(); // Need to have shared memory initialized, and `m_prime`
+        __syncthreads(); // Need to have shared memory initialized, and `m_prime`
                          // updated from end of prev iter
 
         //
@@ -608,7 +608,7 @@ public:
 
         // Compute threadblock-scoped matrix multiply-add
         mma(gemm_k_iterations, accum, iterator_A, iterator_B, accum);
-        syncthreads();
+        __syncthreads();
 
         if (kPreloadV) {
           prologueV(0);
@@ -693,7 +693,7 @@ public:
         MM0::B2bGemm::accumToSmem(
             shared_storage.after_mm0.si, accum, lane_id(), output_tile_coords);
 
-        syncthreads();
+        __syncthreads();
 
         //
         // MATMUL: Attn . V
@@ -715,7 +715,7 @@ public:
           // Compute threadblock-scoped matrix multiply-add and store it in accum
           // (in registers)
           if (!kPreloadV) {
-            syncthreads(); // we share shmem between mma and epilogue
+            __syncthreads(); // we share shmem between mma and epilogue
           }
 
           typename MM1::Mma::IteratorB iterator_V(
@@ -741,7 +741,7 @@ public:
           }
 
           mma_pv(gemm_k_iterations, accum_o, iterator_V, accum_o);
-          syncthreads();
+          __syncthreads();
 
           if (kPreloadV && !kKeepOutputInRF && blockN + 1 < nBlockN) {
             prologueV(blockN + 1);
@@ -809,11 +809,11 @@ public:
                       }));
                 }));
             if (!kKeepOutputInRF) {
-              syncthreads();
+              __syncthreads();
             }
           }
         }
-         syncthreads(); // we modify `m_prime` after
+         __syncthreads(); // we modify `m_prime` after
       }
 
       if (kKeepOutputInRF) {
@@ -860,7 +860,7 @@ public:
 
       // Next tile
       problem_visitor.advance(gridDim.x);
-      syncthreads(); // Don't start the next iteration until all threads are done using shared memory.
+      __syncthreads(); // Don't start the next iteration until all threads are done using shared memory.
     }
   }
 
@@ -929,7 +929,7 @@ public:
     }
 
     // Make sure we all share the update values for `mi`
-    syncthreads();
+    __syncthreads();
 
     // Doing this `exp` is quite expensive. Let's
     // split it across the warps
@@ -955,7 +955,7 @@ public:
         out_rescale[id] = 1.0f;
       }
     }
-    syncthreads(); // Update output fragments
+    __syncthreads(); // Update output fragments
     if (kKeepOutputInRF && !is_first) {
       accum_t line_rescale;
       LambdaIterator::iterateRows(
@@ -995,7 +995,7 @@ public:
           });
     }
 
-    syncthreads();
+    __syncthreads();
     if (lane_id < kLinesPerWarp) {
       int id = warp_id * kLinesPerWarp + lane_id;
       accum_t total_row = s_prime[id];
