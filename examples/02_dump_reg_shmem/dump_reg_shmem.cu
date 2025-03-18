@@ -73,7 +73,11 @@
 template <typename Element, typename GmemIterator, typename SmemIterator>
 CUTLASS_GLOBAL void kernel_dump(typename GmemIterator::Params params,
                             typename GmemIterator::TensorRef ref) {
+#if defined(CUTLASS_ENABLE_SYCL)
+  Element* shared_storage = static_cast<Element*>(sycl::ext::oneapi::experimental::get_work_group_scratch_memory());
+#else
   extern __shared__ Element shared_storage[];
+#endif
 
   // Construct the global iterator and load the data to the fragments.
   int tb_thread_id = threadIdx.y * blockDim.x + threadIdx.x;

@@ -380,7 +380,13 @@ int main(int argc, const char *arg[]) {
   double alpha = 2.25;
   double beta = 1.24;
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<kernel>(sycl_grid, sycl_block,
+#else
   kernel<<< grid, block >>>(
+#endif
     D.device_data(),
     alpha,
     A.device_data(),
