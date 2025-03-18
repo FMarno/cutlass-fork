@@ -112,11 +112,11 @@ function(cutlass_example_add_executable NAME)
 endfunction()
 
 foreach(EXAMPLE
-  # 00_basic_gemm
+  00_basic_gemm
   01_cutlass_utilities
   # 02_dump_reg_shmem
   03_visualize_layout
-  # 04_tile_iterator
+  04_tile_iterator
   05_batched_gemm
   06_splitK_gemm
   07_volta_tensorop_gemm

@@ -243,6 +243,19 @@ void GemmPlanarComplex(
     (problem_size.n() + block.y * kNblock - 1) / (block.y * kNblock),
     1);
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<kernel::GemmPlanarComplex<
+    ElementA, LayoutA,
+    ElementB, LayoutB,
+    ElementC, LayoutC,
+    ScalarType,
+    ComputeType,
+    ConvertOp,
+    InnerProductOp
+  >>(sycl_grid, sycl_block,
+#else
   kernel::GemmPlanarComplex<
     ElementA, LayoutA,
     ElementB, LayoutB,
@@ -252,6 +265,7 @@ void GemmPlanarComplex(
     ConvertOp,
     InnerProductOp
   ><<< grid, block >>>(
+#endif
     problem_size,
     alpha,
     tensor_a,

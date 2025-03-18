@@ -171,8 +171,19 @@ int main() {
   int smem_size =
       int(sizeof(Element) * EXAMPLE_MATRIX_ROW * EXAMPLE_MATRIX_COL);
 
+#if defined(CUTLASS_ENABLE_SYCL)
+    const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+
+    syclcompat::experimental::launch_properties l_props{
+          sycl::ext::oneapi::experimental::work_group_scratch_size(smem_size)
+    };
+    syclcompat::experimental::launch_policy policy{sycl_grid, sycl_block, l_props};
+    syclcompat::experimental::launch<kernel_dump<Element, GmemIterator, SmemIterator>>(policy, params, matrix.device_ref());
+#else
   kernel_dump<Element, GmemIterator, SmemIterator>
       <<<grid, block, smem_size, 0>>>(params, matrix.device_ref());
+#endif
 
   cudaError_t result = cudaDeviceSynchronize();
 

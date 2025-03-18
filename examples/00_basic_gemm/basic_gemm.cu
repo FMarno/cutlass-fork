@@ -182,7 +182,13 @@ cudaError_t InitializeMatrix(float *matrix, int rows, int columns, int seed = 0)
     (columns + block.y - 1) / block.y
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<InitializeMatrix_kernel>(sycl_grid, sycl_block, matrix, rows, columns, seed);
+#else
   InitializeMatrix_kernel<<< grid, block >>>(matrix, rows, columns, seed);
+#endif
 
   return cudaGetLastError();
 }
@@ -275,7 +281,13 @@ cudaError_t ReferenceGemm(
     (N + block.y - 1) / block.y
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<ReferenceGemm_kernel>(sycl_grid, sycl_block, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+#else
   ReferenceGemm_kernel<<< grid, block >>>(M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+#endif
 
   return cudaGetLastError();
 }

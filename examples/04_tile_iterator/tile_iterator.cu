@@ -165,7 +165,13 @@ cudaError_t TestTileIterator(int M, int K) {
     dim3 grid(1, 1);
 
     // Launch copy kernel to perform the copy
+#if defined(CUTLASS_ENABLE_SYCL)
+    const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+    const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+    syclcompat::launch<copy<Iterator>>(sycl_grid, sycl_block,
+#else
     copy<Iterator><<< grid, block >>>(
+#endif
             dst_params,
             dst_tensor.device_data(),
             src_params,
