@@ -115,7 +115,7 @@ foreach(EXAMPLE
   00_basic_gemm
   01_cutlass_utilities
   02_dump_reg_shmem
-  03_visualize_layout
+  #03_visualize_layout
   04_tile_iterator
   05_batched_gemm
   06_splitK_gemm

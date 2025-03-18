@@ -67,7 +67,7 @@ template <class ProblemShape, class CtaTiler,
           class TB, class SmemLayoutB, class TmaB,
           class TC, class CStride, class TiledMma,
           class Alpha, class Beta>
-CUTLASS_GLOBAL static
+CUTLASS_GLOBAL
 __launch_bounds__(decltype(size(TiledMma{}))::value)
 void
 gemm_device(ProblemShape shape_MNK, CtaTiler cta_tiler,
