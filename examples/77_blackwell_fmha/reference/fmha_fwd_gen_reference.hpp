@@ -45,7 +45,7 @@ template<
   class TensorCacheV,
   class TensorO
 >
-void __global__ fmha_fwd_gen_reference_kernel(
+void CUTLASS_GLOBAL fmha_fwd_gen_reference_kernel(
     ProblemShape problem_shape,
     const int* seqlen_kv, const int* cache_batch_idx, 
     TensorQ mQ, TensorNewK mNewK, TensorNewV mNewV,

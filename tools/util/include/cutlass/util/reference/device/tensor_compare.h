@@ -56,7 +56,7 @@ template <typename Element>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  BlockCompareEqual(
   int *equal, 
@@ -83,7 +83,7 @@ template <typename Element>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  BlockCompareRelativelyEqual(
   int *equal, 
@@ -111,7 +111,7 @@ template <template <class> class BinaryOp, typename Element>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
 BlockElementwiseOp(
   Element *ptr_dst,

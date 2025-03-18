@@ -225,7 +225,7 @@ public:
 
 // Sample kernel demonstrating a collective GEMM operation by a warp on arbitrary matrices held
 // in Shared Memory.
-__global__ void kernel(
+CUTLASS_GLOBAL __device__ void kernel
   float *D_gmem, 
   float alpha, 
   float const *A_gmem, 
@@ -363,7 +363,13 @@ int main(int argc, const char *arg[]) {
   float alpha = 1.0f;
   float beta = 0.0f;
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  syclcompat::dim3 sycl_grid{grid.x, grid.y, grid.z};
+  syclcompat::dim3 sycl_block{block.x, block.y, block.z};
+  syclcompat::launch<kernel>(sycl_grid, sycl_block,
+#else
   kernel<<< grid, block >>>(
+#endif
     D.device_data(),
     alpha,
     A.device_data(),

@@ -78,7 +78,7 @@ inline int getOutputSize(int H_W, int padding, int kernel_size, int stride)
  * each block deals with C elements of output when each thread deals with ((C + 255)/256 element of output)
 */
 template<typename T, bool IS_AVG_POOLING>
-__global__ void pooling_nhwc_element1_kernel(T* output,
+CUTLASS_GLOBAL void pooling_nhwc_element1_kernel(T* output,
                                              const T* input,
                                              const int N,
                                              const int H,
@@ -144,7 +144,7 @@ __global__ void pooling_nhwc_element1_kernel(T* output,
 }
 
 template<typename T2, typename T, bool IS_AVG_POOLING>
-__global__ void pooling_nhwc_element2_kernel(T2* output,
+CUTLASS_GLOBAL void pooling_nhwc_element2_kernel(T2* output,
                                              const T2* input,
                                              const int N,
                                              const int H,
@@ -221,7 +221,7 @@ __global__ void pooling_nhwc_element2_kernel(T2* output,
  * block(block_size) -- each block deals with H*W/block_size elements;
 */
 template<typename T, bool IS_AVG_POOLING>
-__global__ void pooling_nxhTo1x1_element1_kernel(
+CUTLASS_GLOBAL void pooling_nxhTo1x1_element1_kernel(
     T* output, const T* input, const int N, const int HW, const int C)
 {
     const int c_idx = blockIdx.x;
@@ -285,7 +285,7 @@ __global__ void pooling_nxhTo1x1_element1_kernel(
  * block(block_size) -- each thread deals with H*W/block_size * 2 elements;
 */
 template<typename T2, typename T, bool IS_AVG_POOLING>
-__global__ void pooling_nxhTo1x1_element2_kernel(
+CUTLASS_GLOBAL void pooling_nxhTo1x1_element2_kernel(
     T2* output, const T2* input, const int N, const int HW, const int C)
 {
     const int c_idx = blockIdx.x;

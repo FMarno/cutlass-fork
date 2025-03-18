@@ -44,7 +44,7 @@ template<
   class TensorLSE,
   class Mask
 >
-void __global__ fmha_reference_kernel(
+void CUTLASS_GLOBAL fmha_reference_kernel(
     ProblemShapeIn problem_shape_in,
     TensorQ mQ, TensorK mK, TensorV mV,
     TensorO mO, TensorLSE mLSE,

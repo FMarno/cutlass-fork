@@ -347,7 +347,7 @@ struct ClusterLaunchParams {
 ///
 /// @code
 /// template<class SharedMemoryType, class A, class B, class C>
-/// __global__ void kernel(A a, B b, C c);
+/// CUTLASS_GLOBAL void kernel(A a, B b, C c);
 ///
 /// X x = get_x();
 /// Y y = get_y();

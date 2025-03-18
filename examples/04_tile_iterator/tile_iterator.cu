@@ -76,7 +76,7 @@
 /// Define PredicatedTileIterators to load and store a M-by-K tile, in column major layout.
 
 template <typename Iterator>
-__global__ void copy(
+CUTLASS_GLOBAL void copy(
     typename Iterator::Params dst_params,
     typename Iterator::Element *dst_pointer,
     typename Iterator::Params src_params,

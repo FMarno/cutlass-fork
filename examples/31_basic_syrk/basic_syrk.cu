@@ -172,7 +172,7 @@ cudaError_t CutlassSsyrkNN(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Kernel to initialize a matrix with small integers.
-__global__ void InitializeMatrix_kernel(
+CUTLASS_GLOBAL void InitializeMatrix_kernel(
   double *matrix,
   int ldm,
   int rows,
@@ -203,7 +203,13 @@ cudaError_t InitializeMatrix(double *matrix, int ldm, int rows, int columns, int
     (columns + block.y - 1) / block.y
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<InitializeMatrix_kernel>(sycl_grid, sycl_block, matrix, ldm, rows, columns, seed);
+#else
   InitializeMatrix_kernel<<< grid, block >>>(matrix, ldm, rows, columns, seed);
+#endif
 
   return cudaGetLastError();
 }
@@ -249,7 +255,7 @@ cudaError_t AllocateMatrix(double **matrix, int ldm, int rows, int columns, int 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Naive reference SYRK computation.
-__global__ void ReferenceSyrk_kernel(
+CUTLASS_GLOBAL void ReferenceSyrk_kernel(
   int N,
   int K,
   double alpha,
@@ -290,7 +296,13 @@ cudaError_t ReferenceSyrk(
     (N + block.y - 1) / block.y
   );
 
+#if defined(CUTLASS_ENABLE_SYCL)
+  const syclcompat::dim3 sycl_grid(grid.x, grid.y, grid.z);
+  const syclcompat::dim3 sycl_block(block.x, block.y, block.z);
+  syclcompat::launch<ReferenceSyrk_kernel>(sycl_grid, sycl_block, N, K, alpha, A, lda, beta, C, ldc);
+#else
   ReferenceSyrk_kernel<<< grid, block >>>(N, K, alpha, A, lda, beta, C, ldc);
+#endif
 
   return cudaGetLastError();
 }

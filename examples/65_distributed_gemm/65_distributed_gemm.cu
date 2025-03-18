@@ -749,7 +749,12 @@ int run(Options &options) {
 
     for (int device_idx = 0; device_idx < TP_; ++device_idx) {
       CUDA_CHECK(cudaSetDevice(device_idx));
+#if defined(CUTLASS_ENABLE_SYCL)
+      // TODO queue
+      syclcompat::launch<cutlass::delay_kernel>(1,1, atomic_flag_ptr);
+#else
       cutlass::delay_kernel<<<1, 1, 0, stream_arr[device_idx]>>>(atomic_flag_ptr);
+#endif
       CUDA_CHECK(cudaGetLastError());
     }
 

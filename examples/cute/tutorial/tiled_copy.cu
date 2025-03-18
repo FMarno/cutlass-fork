@@ -67,7 +67,7 @@
 //
 // Uses local_partition() to partition a tile among threads arranged as (THR_M, THR_N).
 template <class TensorS, class TensorD, class ThreadLayout>
-__global__ void copy_kernel(TensorS S, TensorD D, ThreadLayout)
+CUTLASS_GLOBAL void copy_kernel(TensorS S, TensorD D, ThreadLayout)
 {
   using namespace cute;
 
@@ -96,7 +96,7 @@ __global__ void copy_kernel(TensorS S, TensorD D, ThreadLayout)
 /// has the precondition that pointers are aligned to the vector size.
 ///
 template <class TensorS, class TensorD, class Tiled_Copy>
-__global__ void copy_kernel_vectorized(TensorS S, TensorD D, Tiled_Copy tiled_copy)
+CUTLASS_GLOBAL void copy_kernel_vectorized(TensorS S, TensorD D, Tiled_Copy tiled_copy)
 {
   using namespace cute;
 

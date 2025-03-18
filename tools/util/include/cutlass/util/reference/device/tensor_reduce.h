@@ -58,7 +58,7 @@ template <
   typename TransformOp,
   int kBlockSize = 128
 >
-__global__ void TensorTransformReducePartial(
+CUTLASS_GLOBAL void TensorTransformReducePartial(
   TensorView<Element, Layout> view,     /// View of the tensor to reduce over
   ComputeType identity,                 /// Identity element of the reduction operation
   ReduceOp reduce,                      /// Reduces an accumulated value with a transformed element: f(ComputeType, ComputeType) => ComputeType
@@ -111,7 +111,7 @@ template <
   typename TransformOp,
   int kBlockSize = 128
 >
-__global__ void TensorTransformReducePartial(
+CUTLASS_GLOBAL void TensorTransformReducePartial(
   TensorView<Element, Layout> view_A,   /// View of the tensor to reduce over
   TensorView<Element, Layout> view_B,   /// View of the tensor to reduce over
   ComputeType identity,                 /// Identity element of the reduction operation
@@ -164,7 +164,7 @@ template <
   typename ReduceOp,
   int kBlockSize = 32
 >
-__global__ void TensorTransformReduceFinalize(
+CUTLASS_GLOBAL void TensorTransformReduceFinalize(
   ComputeType *workspace, 
   ComputeType identity,
   int workspace_size,

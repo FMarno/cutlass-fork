@@ -2541,7 +2541,7 @@ struct AttentionBackwardKernel {
 };
 
 template <typename AK>
-__global__ void __launch_bounds__(AK::kNumThreads, AK::kMinBlocksPerSm)
+CUTLASS_GLOBAL void __launch_bounds__(AK::kNumThreads, AK::kMinBlocksPerSm)
     attention_kernel_backward_batched_impl(typename AK::Params p) {
   if (!p.advance_to_block()) {
     return;
@@ -2550,5 +2550,5 @@ __global__ void __launch_bounds__(AK::kNumThreads, AK::kMinBlocksPerSm)
 }
 
 template <typename AK>
-__global__ void __launch_bounds__(AK::kNumThreads, AK::kMinBlocksPerSm)
+CUTLASS_GLOBAL void __launch_bounds__(AK::kNumThreads, AK::kMinBlocksPerSm)
     attention_kernel_backward_batched(typename AK::Params params);

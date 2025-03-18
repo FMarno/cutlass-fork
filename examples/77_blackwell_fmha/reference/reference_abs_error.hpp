@@ -87,7 +87,7 @@ struct DeviceAllocation {
 };
 
 template<typename Element>
-__global__ void reference_abs_diff_kernel(
+CUTLASS_GLOBAL void reference_abs_diff_kernel(
     Element* data, Element* data_ref, size_t count,
     double* max_diff, double* sum_diff,
     bool print_diff ) {

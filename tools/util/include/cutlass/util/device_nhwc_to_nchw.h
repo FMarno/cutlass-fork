@@ -56,7 +56,7 @@ void nhwc_to_nchw(cutlass::Tensor4DCoord input_tensor_size,
 
 
 template <typename T>
-__global__ void nhwc_to_nchw_kernel(T *output, 
+CUTLASS_GLOBAL void nhwc_to_nchw_kernel(T *output, 
                                     const T *input, 
                                     const int n,
                                     const int h, 

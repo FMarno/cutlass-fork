@@ -53,7 +53,7 @@ namespace cutlass {
 
 using AtomicBoolean = cuda::atomic<bool>;
 
-__global__ void delay_kernel(const AtomicBoolean* atomic_flag_ptr) {
+CUTLASS_GLOBAL void delay_kernel(const AtomicBoolean* atomic_flag_ptr) {
   while (not atomic_flag_ptr->load()) {
     __nanosleep(40);
   }

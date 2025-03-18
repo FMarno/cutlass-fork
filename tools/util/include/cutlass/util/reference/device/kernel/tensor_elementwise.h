@@ -44,7 +44,7 @@ namespace kernel {
 
 /// Kernel to initialize tensor to uniform random distribution
 template <typename T>
-__global__ void TensorInitializeUniform(
+CUTLASS_GLOBAL void TensorInitializeUniform(
     Distribution dist, int64_t seed, int dim_contiguous, int dim_strided, T *tensor, int ldm) {
   __shared__ curandState_t rng_state[1024];
 
@@ -83,7 +83,7 @@ __global__ void TensorInitializeUniform(
 
 /// Kernel to initialize tensor to uniform distribution
 template <typename T>
-__global__ void TensorInitializeGaussian(
+CUTLASS_GLOBAL void TensorInitializeGaussian(
     Distribution dist, int64_t seed, int dim_contiguous, int dim_strided, T *tensor, int ldm) {
   __shared__ curandState_t rng_state[1024];
 
@@ -117,7 +117,7 @@ __global__ void TensorInitializeGaussian(
 
 /// Kernel to initialize tensor to an identity matrix
 template <typename T>
-__global__ void TensorInitializeLinear(
+CUTLASS_GLOBAL void TensorInitializeLinear(
     Distribution dist, int64_t seed, int dim_contiguous, int dim_strided, T *tensor, int ldm) {
   __shared__ curandState_t rng_state[1024];
 
@@ -140,7 +140,7 @@ __global__ void TensorInitializeLinear(
 
 /// Kernel to initialize tensor to an identity matrix
 template <typename T>
-__global__ void TensorInitializeIdentity(
+CUTLASS_GLOBAL void TensorInitializeIdentity(
     Distribution dist, int64_t seed, int dim_contiguous, int dim_strided, T *tensor, int ldm) {
   __shared__ curandState_t rng_state[1024];
 

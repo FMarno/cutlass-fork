@@ -101,7 +101,7 @@ template <typename Func, int Rank, typename Params>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  TensorForEach(Coord<Rank> size, Params params = Params()) {
 
@@ -131,7 +131,7 @@ template <typename Func, int Rank, typename Params>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  TensorDiagonalForEach(Coord<Rank> size, Params params, int start, int end) {
 
@@ -157,7 +157,7 @@ template <typename Element, typename Func>
 #if defined (CUTLASS_ENABLE_SYCL)
 void
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  BlockForEach(
   Element *ptr, 

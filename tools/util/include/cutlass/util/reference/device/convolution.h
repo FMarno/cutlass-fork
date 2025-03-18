@@ -75,7 +75,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv2dFprop(
+CUTLASS_GLOBAL void Conv2dFprop(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_x,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -221,7 +221,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv3dFprop(
+CUTLASS_GLOBAL void Conv3dFprop(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_x,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -383,7 +383,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv2dDgrad(
+CUTLASS_GLOBAL void Conv2dDgrad(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -530,7 +530,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void Conv3dDgrad(
+CUTLASS_GLOBAL void Conv3dDgrad(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_w,
@@ -696,7 +696,7 @@ template <
   int kCtaShapeM = 8,     // shape of a threadblock in units of threads
   int kCtaShapeN = 16     // shape of a threadblock in units of threads
 >
-__global__ void Conv2dWgrad(
+CUTLASS_GLOBAL void Conv2dWgrad(
   conv::Conv2dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_x,
@@ -837,7 +837,7 @@ template <
   int kCtaShapeM = 8,     // shape of a threadblock in units of threads
   int kCtaShapeN = 16     // shape of a threadblock in units of threads
 >
-__global__ void Conv3dWgrad(
+CUTLASS_GLOBAL void Conv3dWgrad(
   conv::Conv3dProblemSize problem_size,
   TensorRef<ElementA, LayoutA> tensor_dy,
   TensorRef<ElementB, LayoutB> tensor_x,

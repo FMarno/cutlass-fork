@@ -682,7 +682,7 @@ void OperationProfiler::save_workspace(
 
 namespace {
 extern "C" {
-__global__ void delay(cuda::atomic<bool> const *release) {
+CUTLASS_GLOBAL void delay(cuda::atomic<bool> const *release) {
   while (release->load(cuda::memory_order_acquire) != true) {
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 700)
     __nanosleep(100);

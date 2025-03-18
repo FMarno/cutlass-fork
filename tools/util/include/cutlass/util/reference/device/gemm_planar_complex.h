@@ -69,7 +69,7 @@ template <
   typename ConvertOp = NumericConverter<ElementC, ScalarType>,
   typename InnerProductOp = multiply_add<complex<ComputeType>>
 >
-__global__ void GemmPlanarComplex(
+CUTLASS_GLOBAL void GemmPlanarComplex(
   gemm::GemmCoord problem_size,
   complex<ScalarType> alpha,
   TensorRefPlanarComplex<ElementA, LayoutA> tensor_a,

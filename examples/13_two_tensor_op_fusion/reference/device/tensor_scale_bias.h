@@ -61,7 +61,7 @@ template <
   typename OutputTile,
   typename ConvertOp = NumericConverter<typename TensorRefOut::Element, ScalarType>
 >
-__global__ void TensorScaleBiasGemm(
+CUTLASS_GLOBAL void TensorScaleBiasGemm(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -108,7 +108,7 @@ template <
   int kMblock = 4,
   int kNblock = 4
 >
-__global__ void TensorScaleBiasGemmBatched(
+CUTLASS_GLOBAL void TensorScaleBiasGemmBatched(
   gemm::GemmCoord problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor
@@ -174,7 +174,7 @@ template <
   int kCtaShapeM = 16,    // shape of a threadblock in units of threads
   int kCtaShapeN = 8      // shape of a threadblock in units of threads
 >
-__global__ void TensorScaleBiasConv2d(
+CUTLASS_GLOBAL void TensorScaleBiasConv2d(
   conv::Conv2dProblemSize problem_size,
   TensorRefIn tensor_in,                  ///< input tensor
   TensorRefOut tensor_out,                ///< output tensor

@@ -69,7 +69,7 @@ template <
   int kMblock = 4,
   int kNblock = 4
 >
-__global__ void Rank2KComplex(
+CUTLASS_GLOBAL void Rank2KComplex(
   gemm::GemmCoord problem_size,
   ScalarType alpha,
   TensorRef<ElementA, LayoutA> tensor_a,

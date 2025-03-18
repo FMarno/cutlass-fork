@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename Element, typename GmemIterator, typename SmemIterator>
-__global__ void kernel_dump(typename GmemIterator::Params params,
+CUTLASS_GLOBAL void kernel_dump(typename GmemIterator::Params params,
                             typename GmemIterator::TensorRef ref) {
   extern __shared__ Element shared_storage[];
 

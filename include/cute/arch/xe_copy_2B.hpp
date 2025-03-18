@@ -165,7 +165,7 @@ SYCL_DEVICE_BUILTIN(void __builtin_IB_subgroup_block_write_flat_u16_m8k16v1(
     int pitch_minus_one, cute::intel::coord_t coord, cute::intel::ushort8 data));
 #undef SYCL_DEVICE_BUILTIN
 
-#undef __global__
+#undef CUTLASS_GLOBAL
 #define __global __attribute__((opencl_global))
 // 16bits No transform No transpose
 SYCL_DEVICE_OCL(ushort intel_sub_group_block_read_16b_1r16c(

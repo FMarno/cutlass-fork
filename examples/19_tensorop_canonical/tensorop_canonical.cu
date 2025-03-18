@@ -222,7 +222,7 @@ public:
 
 // Sample kernel demonstrating a collective GEMM operation by a warp on arbitrary matrices held
 // in Shared Memory.
-__global__ void kernel(
+CUTLASS_GLOBAL void kernel(
   double *D_gmem, 
   double alpha, 
   double const *A_gmem, 

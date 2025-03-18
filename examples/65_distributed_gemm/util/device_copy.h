@@ -54,7 +54,7 @@ void device_copy(TensorSource      tensor_source,
 
 
 template <typename TensorSource, typename TensorDestination>
-__global__ void device_copy_kernel(TensorSource const tensor_source,
+CUTLASS_GLOBAL void device_copy_kernel(TensorSource const tensor_source,
                                    TensorDestination tensor_destination) {
   auto linear_idx = blockIdx.x * blockDim.x + threadIdx.x;
   using ElementSrc = typename TensorSource::value_type;

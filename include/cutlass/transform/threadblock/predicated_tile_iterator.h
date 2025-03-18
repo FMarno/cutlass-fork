@@ -90,7 +90,7 @@ namespace threadblock {
 /// An efficient pipeline structure may be constructed as follows:
 ///
 // template <typename Iterator>
-// __global__ void kernel(
+// CUTLASS_GLOBAL void kernel(
 //   typename Iterator::Params params, 
 //   typename Iterator::Element *ptr,
 //   TensorCoord extent) {

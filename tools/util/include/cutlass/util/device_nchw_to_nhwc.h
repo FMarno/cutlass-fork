@@ -55,7 +55,7 @@ void nchw_to_nhwc(cutlass::Tensor4DCoord input_tensor_size,
                   cudaStream_t stream);
 
 template <typename T>
-__global__ void nchw_to_nhwc_kernel(T *output, 
+CUTLASS_GLOBAL void nchw_to_nhwc_kernel(T *output, 
                                     const T *input, 
                                     const int n,
                                     const int h, 

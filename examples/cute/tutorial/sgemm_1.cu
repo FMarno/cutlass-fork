@@ -46,7 +46,7 @@ template <class ProblemShape, class CtaTiler,
           class TB, class BStride, class BSmemLayout, class BThreadLayout,
           class TC, class CStride, class CSmemLayout, class CThreadLayout,
           class Alpha, class Beta>
-__global__ static
+CUTLASS_GLOBAL static
 __launch_bounds__(decltype(size(CThreadLayout{}))::value)
 void
 gemm_device(ProblemShape shape_MNK, CtaTiler cta_tiler,

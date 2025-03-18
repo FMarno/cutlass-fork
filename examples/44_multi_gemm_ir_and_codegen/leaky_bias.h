@@ -81,7 +81,7 @@ struct LEAKY_RELU{
 };
 
 template <int N, int BLOCKDIM>
-__global__ void leaky_and_activation(half* inout, half* bias, half scale, bool mat_bias){
+CUTLASS_GLOBAL void leaky_and_activation(half* inout, half* bias, half scale, bool mat_bias){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 
@@ -115,7 +115,7 @@ __global__ void leaky_and_activation(half* inout, half* bias, half scale, bool m
 
 
 template <int N, int BLOCKDIM>
-__global__ void leaky_and_activation(half* inout, half scale){
+CUTLASS_GLOBAL void leaky_and_activation(half* inout, half scale){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 
@@ -154,7 +154,7 @@ void leaky_and_activation(half* inout, half* bias, int m, int b, half scale, boo
 }
 
 template <int N, int BLOCKDIM>
-__global__ void relu_and_activation(half* inout, half* bias, bool mat_bias){
+CUTLASS_GLOBAL void relu_and_activation(half* inout, half* bias, bool mat_bias){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 
@@ -188,7 +188,7 @@ __global__ void relu_and_activation(half* inout, half* bias, bool mat_bias){
 
 
 template <int N, int BLOCKDIM>
-__global__ void relu_and_activation(half* inout){
+CUTLASS_GLOBAL void relu_and_activation(half* inout){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 
@@ -227,7 +227,7 @@ void relu_and_activation(half* inout, half* bias, int m, int b, bool mat_bias){
 
 
 template <int N, int BLOCKDIM>
-__global__ void identity_and_activation(half* inout, half* bias, bool mat_bias){
+CUTLASS_GLOBAL void identity_and_activation(half* inout, half* bias, bool mat_bias){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 
@@ -258,7 +258,7 @@ __global__ void identity_and_activation(half* inout, half* bias, bool mat_bias){
 }
 
 template <int N, int BLOCKDIM>
-__global__ void identity_and_activation(half* inout){
+CUTLASS_GLOBAL void identity_and_activation(half* inout){
 
     constexpr bool N_MOD_2 = N & 1 ? false : true;
 

@@ -73,7 +73,7 @@ using example::IndexedGather;
 using example::CustomStride;
 
 template<class Operator, class FilterTensor, class ActivationTensor, class OutputTensor>
-__global__
+CUTLASS_GLOBAL
 __launch_bounds__(Operator::MaxThreadsPerBlock, Operator::MinBlocksPerMultiprocessor)
 void kernel_entrypoint(FilterTensor mFlt, ActivationTensor mAct, OutputTensor mOut) {
   // TODO(codeplay): if branch maybe not needed

@@ -56,7 +56,7 @@ void nhwc_padding(cutlass::Tensor4DCoord input_tensor_size,
 
 
 template <typename T>
-__global__ void nhwc_padding_kernel(const int32_t n,
+CUTLASS_GLOBAL void nhwc_padding_kernel(const int32_t n,
                                     const int32_t h,
                                     const int32_t w,
                                     const int32_t c_in,
@@ -93,7 +93,7 @@ __global__ void nhwc_padding_kernel(const int32_t n,
 
 // fast kernel for c_in = 3 & c_out = 4
 template <typename Tio, typename Telement, int element_in_Tio>
-__global__ void nhwc_padding_channel_3To4_kernel(const int32_t n,
+CUTLASS_GLOBAL void nhwc_padding_channel_3To4_kernel(const int32_t n,
                                                  const int32_t h,
                                                  const int32_t w,
                                                  const Tio *input,
@@ -124,7 +124,7 @@ __global__ void nhwc_padding_channel_3To4_kernel(const int32_t n,
 
 // fast kernel for c_in = 3 & c_out = 8
 template <typename Tio, typename Telement, int element_in_Tio>
-__global__ void nhwc_padding_channel_3To8_kernel(const int32_t n,
+CUTLASS_GLOBAL void nhwc_padding_channel_3To8_kernel(const int32_t n,
                                                  const int32_t h,
                                                  const int32_t w,
                                                  const Tio *input,

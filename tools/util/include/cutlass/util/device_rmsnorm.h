@@ -41,7 +41,7 @@
 
 namespace cutlass {
 
-__global__ void rmsnorm_twoPassAlgo_e8(float4 *output, const float4 *input,
+CUTLASS_GLOBAL void rmsnorm_twoPassAlgo_e8(float4 *output, const float4 *input,
                                        const float4 *weight,
                                        const int m, const int n, float epsilon) {
   const int m_idx = blockIdx.x;
@@ -114,7 +114,7 @@ __global__ void rmsnorm_twoPassAlgo_e8(float4 *output, const float4 *input,
 }
 
 template<typename T>
-__global__ void rmsnorm_twoPassAlgo_e1(T* output,
+CUTLASS_GLOBAL void rmsnorm_twoPassAlgo_e1(T* output,
                                        const T* input,
                                        const T* weight,
                                        const int m, const int n,

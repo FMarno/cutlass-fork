@@ -152,7 +152,7 @@ cudaError_t CutlassSgemmNN(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Kernel to initialize a matrix with small integers.
-__global__ void InitializeMatrix_kernel(
+CUTLASS_GLOBAL void InitializeMatrix_kernel(
   float *matrix,
   int rows,
   int columns,
@@ -228,7 +228,7 @@ cudaError_t AllocateMatrix(float **matrix, int rows, int columns, int seed = 0) 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Naive reference GEMM computation.
-__global__ void ReferenceGemm_kernel(
+CUTLASS_GLOBAL void ReferenceGemm_kernel(
   int M,
   int N,
   int K,

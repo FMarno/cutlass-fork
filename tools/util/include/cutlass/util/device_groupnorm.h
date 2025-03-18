@@ -67,7 +67,7 @@ extern __shared__ char groupnorm_shm[];
 // block(BLOCKSIZE)
 // BLOCKSIZE * TVecs_PER_THREAD <= prod_dim1_to_last_dim/num_group
 template<typename TVec, typename T, int T_PER_TVec>
-__global__ void groupnorm_twopass_store_locally(T*          output,
+CUTLASS_GLOBAL void groupnorm_twopass_store_locally(T*          output,
                                                 const T*    input,
                                                 const T*    gamma,
                                                 const T*    beta,
@@ -193,7 +193,7 @@ __global__ void groupnorm_twopass_store_locally(T*          output,
 // block(BLOCKSIZE)
 // BLOCKSIZE * TVecs_PER_THREAD <= prod_dim1_to_last_dim/num_group
 template<typename TVec, typename T, int T_PER_TVec>
-__global__ void groupnorm_twopass_multiple_load(T*          output,
+CUTLASS_GLOBAL void groupnorm_twopass_multiple_load(T*          output,
                                                 const T*    input,
                                                 const T*    gamma,
                                                 const T*    beta,

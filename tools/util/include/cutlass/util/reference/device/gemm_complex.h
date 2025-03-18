@@ -76,7 +76,7 @@ template <
 #if defined (CUTLASS_ENABLE_SYCL)
 void 
 #else
-__global__ void
+CUTLASS_GLOBAL void
 #endif
  GemmComplex(
   gemm::GemmCoord problem_size,

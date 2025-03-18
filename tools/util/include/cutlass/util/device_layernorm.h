@@ -66,7 +66,7 @@ void layernorm(cutlass::MatrixCoord tensor_size,
  * block(block_size) -- each block deals with n elements ; each thread deals with ITEM_PER_THREAD elements
 */
 template<typename T, int ITEM_PER_THREAD>
-__global__ void layernorm_twoPassAlgo_stored_locally_e1(T* output, 
+CUTLASS_GLOBAL void layernorm_twoPassAlgo_stored_locally_e1(T* output, 
                                                         const T* input, 
                                                         const T* gamma, 
                                                         const T* beta, 
@@ -142,7 +142,7 @@ __global__ void layernorm_twoPassAlgo_stored_locally_e1(T* output,
  * block(block_size) -- each block deals with block_size*ITEM_PER_THREAD*2 elements;
 */
 template<typename T2, typename T, int ITEM_PER_THREAD>
-__global__ void layernorm_twoPassAlgo_stored_locally_e2(T2* output,
+CUTLASS_GLOBAL void layernorm_twoPassAlgo_stored_locally_e2(T2* output,
                                                         const T2* input,
                                                         const T2* gamma,
                                                         const T2* beta,
@@ -223,7 +223,7 @@ __global__ void layernorm_twoPassAlgo_stored_locally_e2(T2* output,
  * block(block_size) -- each block deals with block_size*ITEM_PER_THREAD*4 elements;
 */
 template<typename T4, typename T, int ITEM_PER_THREAD>
-__global__ void layernorm_twoPassAlgo_stored_locally_e4(T4* output,
+CUTLASS_GLOBAL void layernorm_twoPassAlgo_stored_locally_e4(T4* output,
                                                         const T4* input,
                                                         const T4* gamma,
                                                         const T4* beta,
@@ -309,7 +309,7 @@ __global__ void layernorm_twoPassAlgo_stored_locally_e4(T4* output,
  * block(block_size) -- each block deals with n elements ; each thread deals with ITEM_PER_THREAD elements
 */
 template<typename T>
-__global__ void layernorm_twoPassAlgo_e1(T* output,
+CUTLASS_GLOBAL void layernorm_twoPassAlgo_e1(T* output,
                                          const T* input,
                                          const T* gamma,
                                          const T* beta,
@@ -375,7 +375,7 @@ __global__ void layernorm_twoPassAlgo_e1(T* output,
  * block(block_size) -- each block deals with block_size*ITEM_PER_THREAD*2 elements;
 */
 template<typename T2, typename T>
-__global__ void layernorm_twoPassAlgo_e2(T2* output,
+CUTLASS_GLOBAL void layernorm_twoPassAlgo_e2(T2* output,
                                          const T2* input,
                                          const T2* gamma,
                                          const T2* beta,
