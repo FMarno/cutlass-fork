@@ -63,7 +63,7 @@ template <
   class ElementZero,
   class ScaleBroadCastLayout,
   class ThrLayout>
-__global__ void dequantize_kernel(DequantizedElement* dq_buffer,
+CUTLASS_GLOBAL void dequantize_kernel(DequantizedElement* dq_buffer,
                                   QuantizedElement const* q_buffer,
                                   OperandLayout const operand_layout,
                                   ElementScale const* scale_buffer,
@@ -401,7 +401,7 @@ constexpr auto compute_memory_reordering_atom(AtomLayout atom_layout = {}, ValLa
 }
 
 template <class TileShape, class EngineSrc, class LayoutSrc, class EngineDst, class LayoutDst, class TiledCopy>
-__global__ void reorder_tensor_kernel(
+CUTLASS_GLOBAL void reorder_tensor_kernel(
   cute::Tensor<EngineSrc, LayoutSrc> S,
   cute::Tensor<EngineDst, LayoutDst> D,
   TiledCopy tiled_copy)
