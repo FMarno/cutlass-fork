@@ -115,15 +115,15 @@ foreach(EXAMPLE
   00_basic_gemm
   01_cutlass_utilities
   02_dump_reg_shmem
-  #03_visualize_layout
+  # 03_visualize_layout
   04_tile_iterator
   # 05_batched_gemm
   # 06_splitK_gemm
   # 07_volta_tensorop_gemm
   # 08_turing_tensorop_gemm
   09_turing_tensorop_conv2dfprop
-  # 10_planar_complex
-  # 11_planar_complex_array
+  10_planar_complex
+  11_planar_complex_array
   12_gemm_bias_relu
   # 13_two_tensor_op_fusion
   14_ampere_tf32_tensorop_gemm
@@ -131,8 +131,8 @@ foreach(EXAMPLE
   # 16_ampere_tensorop_conv2dfprop
   # 17_fprop_per_channel_bias
   # 18_ampere_fp64_tensorop_affine2_gemm
-  # 19_tensorop_canonical
-  # 20_simt_canonical
+  # 19_tensorop_canonical #/home/finlay/cutlass-fork/examples/19_tensorop_canonical/tensorop_canonical.cu:234:3: error: __shared__ local variables not allowed in __host__ functions
+  # 20_simt_canonical # /home/finlay/cutlass-fork/examples/20_simt_canonical/simt_canonical.cu:246:9: error: SYCL kernel cannot use a non-const static data variable
   21_quaternion_gemm
   22_quaternion_conv
   # 23_ampere_gemm_operand_reduction_fusion
@@ -158,7 +158,7 @@ foreach(EXAMPLE
   # 43_ell_block_sparse_gemm
   # 45_dual_gemm
   # 46_depthwise_simt_conv2dfprop
-  # 47_ampere_gemm_universal_streamk
+  47_ampere_gemm_universal_streamk
   48_hopper_warp_specialized_gemm
   49_hopper_gemm_with_collective_builder
   50_hopper_gemm_with_epilogue_swizzle
@@ -170,7 +170,7 @@ foreach(EXAMPLE
   56_hopper_ptr_array_batched_gemm
   57_hopper_grouped_gemm
   58_ada_fp8_gemm
-  # 59_ampere_gather_scatter_conv
+  # 59_ampere_gather_scatter_conv # thrust::universal_vector causes issue
   61_hopper_gemm_with_topk_and_softmax
   62_hopper_sparse_gemm
   63_hopper_gemm_with_weight_prefetch

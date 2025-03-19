@@ -225,7 +225,7 @@ public:
 
 // Sample kernel demonstrating a collective GEMM operation by a warp on arbitrary matrices held
 // in Shared Memory.
-CUTLASS_GLOBAL __device__ void kernel
+CUTLASS_GLOBAL __device__ void kernel(
   float *D_gmem, 
   float alpha, 
   float const *A_gmem, 
