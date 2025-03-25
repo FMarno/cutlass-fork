@@ -64,7 +64,7 @@ struct KernelHardwareInfo {
     auto queue = syclcompat::get_default_queue();
     auto dev = queue.get_device();
     int multiprocessor_count = 1;
-    //TODO (Codeplay): Replace with device.get_info<sycl::ext::oneapi::info::device::num_compute_units>() once available 
+    //TODO (Codeplay): Replace with device.get_info<sycl::ext::oneapi::info::device::num_compute_units>() once available
 #if defined __SYCL_CUDA_ARCH__
     multiprocessor_count = dev.get_info<sycl::info::device::max_compute_units>();
 #elif defined SYCL_INTEL_TARGET
