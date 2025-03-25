@@ -31,9 +31,11 @@
 #pragma once
 
 #include "cutlass/device_kernel.h"
-#if !defined(__CUDACC_RTC__) && !defined(CUTLASS_ENABLE_SYCL)
+#if !defined(__CUDACC_RTC__)
+#if !defined(CUTLASS_ENABLE_SYCL)
 #include "cuda_runtime.h"
 #include "cutlass/cluster_launch.hpp"
+#endif
 #include "cutlass/trace.h"
 #endif
 #include <cute/int_tuple.hpp>
