@@ -326,9 +326,9 @@ T shfl_xor_sync(
 
 // Needed for CUTLASS_TRACE_HOST
 
-#if !defined(__CUDA__)
+#if defined(CUTLASS_ENABLE_SYCL) && !defined(__CUDA__)
 namespace syclcompat {
-std::ostream& operator<<(std::ostream &os, const dim3& dims)
+static inline std::ostream& operator<<(std::ostream &os, const dim3& dims)
 {
     os << dims.x << ", " << dims.y << ", " << dims.z;
     return os;
@@ -337,7 +337,7 @@ std::ostream& operator<<(std::ostream &os, const dim3& dims)
 #endif
 
 #if defined(CUTLASS_ENABLE_SYCL) && defined(__CUDA__)
-std::ostream& operator<<(std::ostream &os, const dim3 &dims)
+static inline std::ostream& operator<<(std::ostream &os, const dim3 &dims)
 {
     os << dims.x << ", " << dims.y << ", " << dims.z;
     return os;
