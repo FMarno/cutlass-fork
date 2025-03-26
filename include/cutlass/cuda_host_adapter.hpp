@@ -92,7 +92,9 @@ namespace cutlass {
 #include <cudaTypedefs.h>
 #endif // (__CUDACC_VERSION__ >= 11.8)
 
+#if !defined(CUTLASS_ENABLE_SYCL)
 #include <driver_types.h>
+#endif
 
 #define CUTLASS_CUDA_DRIVER_STRINGIFY(tok) #tok
 

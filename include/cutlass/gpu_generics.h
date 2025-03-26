@@ -57,12 +57,6 @@ static constexpr int MaxNumThreadsPerBlock = 1024;
 
 }
 
-std::ostream& operator<<(std::ostream &os, const dim3 &dims)
-{
-    os << dims.x << ", " << dims.y << ", " << dims.z;
-    return os;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Generalization of CUDA's threadIdx, blockIdx, and gridDim.
@@ -327,6 +321,28 @@ T shfl_xor_sync(
   return 0;
 #endif
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Needed for CUTLASS_TRACE_HOST
+
+#if !defined(__CUDA__)
+namespace syclcompat {
+std::ostream& operator<<(std::ostream &os, const dim3& dims)
+{
+    os << dims.x << ", " << dims.y << ", " << dims.z;
+    return os;
+}
+}
+#endif
+
+#if defined(CUTLASS_ENABLE_SYCL) && defined(__CUDA__)
+std::ostream& operator<<(std::ostream &os, const dim3 &dims)
+{
+    os << dims.x << ", " << dims.y << ", " << dims.z;
+    return os;
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
