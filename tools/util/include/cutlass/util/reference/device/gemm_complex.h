@@ -217,6 +217,7 @@ void GemmComplex(
   ComplexTransform transform_b,
   ScalarType beta,
   TensorRef<ElementC, LayoutC> tensor_c,
+  // issue here is that tensor c and d have the same layout
   TensorRef<ElementD, LayoutC> tensor_d,
   ComputeType initial_accum,
   int batch_count = 1,

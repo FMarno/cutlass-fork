@@ -106,6 +106,20 @@ struct Options {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
+void transpose(T* in, T* out, size_t M, size_t N, size_t L) {
+  auto q = syclcompat::get_default_queue();
+
+  q.submit([&](sycl::handler& cgh) {
+    cgh.parallel_for(sycl::range<3>(M,N,L), [=](sycl::id<3> idx) {
+        auto m = idx[0], n = idx[1], l = idx[2];
+        auto gemm_offset = l*(M*N);
+        out[gemm_offset + M*n + m] = in[gemm_offset + N*m + n];
+    });
+  });
+  q.wait_and_throw();
+}
+
 template <
   class Gemm
 >
@@ -160,7 +174,7 @@ struct ExampleRunner {
     cutlass::TensorRef ref_A(block_A.get(), LayoutA::packed({M, K}));
     cutlass::TensorRef ref_B(block_B.get(), LayoutB::packed({K, N}));
     cutlass::TensorRef ref_C(block_C.get(), LayoutC::packed({M, N}));
-    cutlass::TensorRef ref_D(block_ref_D.get(), LayoutD::packed({M, N}));
+    cutlass::TensorRef ref_D(block_ref_D.get(), LayoutC::packed({M, N}));
 
     cutlass::reference::device::GemmComplex(
           {M, N, K},
@@ -180,11 +194,24 @@ struct ExampleRunner {
           M * N  // batch_stride_D
         );
 
-    syclcompat::wait();
+    bool passed = false;
 
-    // Check if output from CUTLASS kernel and reference kernel are equal or not
-    bool passed = cutlass::reference::device::BlockCompareEqual(
-      block_ref_D.get(), block_D.get(), block_D.size());
+    if constexpr (!std::is_same_v<LayoutC, LayoutD>) {
+      cutlass::DeviceAllocation<ElementOutput> block_ref_D_transposed(M*N*L);
+
+      transpose(block_ref_D.get(), block_ref_D_transposed.get(), M, N, L);
+      // TODO can i move block_ref_D_transposed into block_ref_D?
+      syclcompat::wait();
+      // Check if output from CUTLASS kernel and reference kernel are equal or not
+      passed = cutlass::reference::device::BlockCompareEqual(
+        block_ref_D.get(), block_D.get(), block_D.size());
+      // transpose D
+    } else {
+      syclcompat::wait();
+      // Check if output from CUTLASS kernel and reference kernel are equal or not
+      passed = cutlass::reference::device::BlockCompareEqual(
+        block_ref_D.get(), block_D.get(), block_D.size());
+    }
 
     return passed;
   }
@@ -309,7 +336,7 @@ int main(int argc, const char** argv)
 
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using LayoutC = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
   using LayoutD = cutlass::layout::RowMajor;
 
   using GmemTiledCopyA = XE_2D_U16x32x32_LD_N;
@@ -344,7 +371,7 @@ int main(int argc, const char** argv)
           ElementOutput,
           cutlass::gemm::TagToStrideC_t<LayoutD>,
           FusionCallBacks,
-          XE_2D_U32x8x16_LD_N,
+          XE_2D_U32x16x8_LD_T, // loading C,
           void, void,
           XE_2D_U32x8x16_ST_N,
           void, void>;

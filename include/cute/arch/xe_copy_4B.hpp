@@ -676,6 +676,7 @@ struct XE_2D_U32x16x4_LD_T {
   }
 };
 
+// TODO(finlay): this is the one for load C as float
 struct XE_2D_U32x16x8_LD_T {
   using BlockShape = Shape<_8, _16>;
 
