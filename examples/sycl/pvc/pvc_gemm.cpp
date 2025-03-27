@@ -112,12 +112,17 @@ void transpose(T* in, T* out, size_t M, size_t N, size_t L) {
 
   q.submit([&](sycl::handler& cgh) {
     cgh.parallel_for(sycl::range<3>(M,N,L), [=](sycl::id<3> idx) {
-        auto m = idx[0], n = idx[1], l = idx[2];
-        auto gemm_offset = l*(M*N);
-        out[gemm_offset + M*n + m] = in[gemm_offset + N*m + n];
+      auto gIn  = make_tensor(in,  make_shape(M,N,L));
+      auto gOut = make_tensor(out, make_shape(N,M,L));
+
+      auto m = idx[0], n = idx[1], l = idx[2];
+
+      auto coord_in  = make_coord(m, n, l);
+      auto coord_out = make_coord(n, m, l);
+
+      gOut[coord_out] = gIn[coord_in];
     });
   });
-  q.wait_and_throw();
 }
 
 template <
@@ -200,18 +205,14 @@ struct ExampleRunner {
       cutlass::DeviceAllocation<ElementOutput> block_ref_D_transposed(M*N*L);
 
       transpose(block_ref_D.get(), block_ref_D_transposed.get(), M, N, L);
-      // TODO can i move block_ref_D_transposed into block_ref_D?
       syclcompat::wait();
-      // Check if output from CUTLASS kernel and reference kernel are equal or not
-      passed = cutlass::reference::device::BlockCompareEqual(
-        block_ref_D.get(), block_D.get(), block_D.size());
-      // transpose D
-    } else {
-      syclcompat::wait();
-      // Check if output from CUTLASS kernel and reference kernel are equal or not
-      passed = cutlass::reference::device::BlockCompareEqual(
-        block_ref_D.get(), block_D.get(), block_D.size());
+
+      std::swap(block_ref_D, block_ref_D_transposed);
     }
+
+    // Check if output from CUTLASS kernel and reference kernel are equal or not
+    passed = cutlass::reference::device::BlockCompareEqual(
+      block_ref_D.get(), block_D.get(), block_D.size());
 
     return passed;
   }
