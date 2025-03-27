@@ -211,7 +211,7 @@ public:
 
   template <class ProblemShape>
   static cutlass::Status
-  initialize_workspace(ProblemShape const& problem_shape, Arguments const& args, void* workspace, cudaStream_t stream, 
+  initialize_workspace(ProblemShape const& problem_shape, Arguments const& args, void* workspace, cudaStream_t stream,
     CudaHostAdapter* cuda_adapter = nullptr) {
     return Status::kSuccess;
   }
@@ -247,12 +247,12 @@ public:
       ProblemShapeMNKL problem_shape_mnkl,
       TileShapeMNK tile_shape_MNK,
       TileCoordMNKL tile_coord_mnkl,
-      Accumulator accumulators, 
+      Accumulator accumulators,
       TiledMma tiled_mma,
       ResidueMNK residue_mnk,
       int thread_idx,
       char* smem) {
-    
+
     (void) tiled_mma;
     (void) residue_mnk;
     (void) smem;
@@ -270,7 +270,7 @@ public:
     static constexpr auto ATOM_M = get<1>(typename TiledMma::ThrLayoutVMNK{}.shape());
     static constexpr auto ATOM_N = get<2>(typename TiledMma::ThrLayoutVMNK{}.shape());
     static constexpr auto ATOM_K = get<3>(typename TiledMma::ThrLayoutVMNK{}.shape());
-    
+
     static_assert(
       BLK_M % ATOM_M == 0 &&
       BLK_N % ATOM_N == 0 &&
@@ -302,13 +302,13 @@ public:
     auto sg_coord = make_coord(sg_m_coord, sg_n_coord, k_coord, l_coord);
 
     bool is_C_load_needed = is_source_supported && fusion_callbacks.is_C_load_needed();
-    
+
     // Represent the full output tensor
     Tensor mD_mnl = cute::get_pvc_tensor(make_shape(M,N,L));
 
     // Tile the output tensor per WG and select the tile for current WG
     Tensor g_wg_D = local_tile(mD_mnl, take<0,2>(CtaTileMNK{}), make_coord(m_coord,n_coord,l_coord));  // (BLK_M,BLK_N)
-    
+
     // Tile the output tensor per SG and select tile for the current SG
     Tensor gD = local_tile(g_wg_D, take<0,2>(SubgroupTileShape{}), make_coord(m_sg,n_sg));            // (SG_M,SG_N)
 
@@ -361,7 +361,7 @@ public:
       FragsM * FragsN * FragmentSize * SubgroupSize * ATOM_M * ATOM_N * ATOM_K;
     constexpr int MN = get<0>(CtaTileMNK{}) * get<1>(CtaTileMNK{});
     static_assert(ValuesLoaded == MN, "the total elements loaded by all threads should be the same as MxN" );
-    
+
     auto synchronize = [&] () {};
     CUTLASS_PRAGMA_UNROLL
     for (int epi_n = 0; epi_n < FragsN; epi_n++) {
@@ -382,7 +382,7 @@ public:
           trD_frag(epi_v) = cst_callbacks.visit(acc_frag_mn(epi_v), epi_v, epi_m, epi_n);
         }
         cst_callbacks.reduce(nullptr, synchronize, epi_m, epi_n, (epi_m == FragsM - 1 && epi_n == FragsN - 1), trD);
-        
+
         if constexpr (is_destination_supported) {
           copy(params.xe_store_d, trD, tCgD(_, epi_m, epi_n));
         }
