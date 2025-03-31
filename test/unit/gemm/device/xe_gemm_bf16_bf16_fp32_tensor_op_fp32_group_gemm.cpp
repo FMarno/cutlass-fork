@@ -43,13 +43,12 @@
 
 namespace cutlass {
 namespace {
-template <typename LayoutA, typename LayoutB>
+template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm {
   using ElementA = cute::bfloat16_t;
   using ElementB = cute::bfloat16_t;
   using ElementC = float;
   using ElementAccumulator = float;
-  using LayoutC = cutlass::layout::RowMajor;
   using ProblemShape = cutlass::gemm::GroupProblemShape<cute::Shape<int,int,int>>; // <M,N,K> per group
 
   using Config = cutlass::gemm::device::DefaultGemmGroupConfiguration<
@@ -67,7 +66,7 @@ struct XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm {
 
 TEST(XE_Device_Gemm_bf16t_bf16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
-    cutlass::layout::RowMajor, cutlass::layout::RowMajor>::Gemm;
+    cutlass::layout::RowMajor, cutlass::layout::RowMajor, cutlass::layout::RowMajor>::Gemm;
 
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
@@ -75,7 +74,7 @@ TEST(XE_Device_Gemm_bf16t_bf16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 
 TEST(XE_Device_Gemm_bf16n_bf16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
-    cutlass::layout::ColumnMajor, cutlass::layout::RowMajor>::Gemm;
+    cutlass::layout::ColumnMajor, cutlass::layout::RowMajor, cutlass::layout::RowMajor>::Gemm;
 
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
@@ -83,7 +82,7 @@ TEST(XE_Device_Gemm_bf16n_bf16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 
 TEST(XE_Device_Gemm_bf16t_bf16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
-    cutlass::layout::RowMajor, cutlass::layout::ColumnMajor>::Gemm;
+    cutlass::layout::RowMajor, cutlass::layout::ColumnMajor, cutlass::layout::RowMajor>::Gemm;
 
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
@@ -91,7 +90,39 @@ TEST(XE_Device_Gemm_bf16t_bf16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 
 TEST(XE_Device_Gemm_bf16n_bf16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
-    cutlass::layout::ColumnMajor, cutlass::layout::ColumnMajor>::Gemm;
+    cutlass::layout::ColumnMajor, cutlass::layout::ColumnMajor, cutlass::layout::RowMajor>::Gemm;
+
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_bf16t_bf16t_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
+    cutlass::layout::RowMajor, cutlass::layout::RowMajor, cutlass::layout::ColumnMajor>::Gemm;
+
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_bf16n_bf16t_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
+    cutlass::layout::ColumnMajor, cutlass::layout::RowMajor, cutlass::layout::ColumnMajor>::Gemm;
+
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_bf16t_bf16n_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
+    cutlass::layout::RowMajor, cutlass::layout::ColumnMajor, cutlass::layout::ColumnMajor>::Gemm;
+
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_bf16n_bf16n_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using Gemm = XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32_group_gemm<
+    cutlass::layout::ColumnMajor, cutlass::layout::ColumnMajor, cutlass::layout::ColumnMajor>::Gemm;
 
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));

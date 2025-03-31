@@ -44,13 +44,13 @@
 
 namespace cutlass {
 namespace {
-template <typename LayoutA, typename LayoutB>
+template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_s8_s8_s32_tensor_op_s32 {
   using Config = cutlass::gemm::device::DefaultGemmConfigurationToCutlass3Types<
     cutlass::arch::OpClassTensorOp, cutlass::arch::IntelPVC,
     int8_t, LayoutA,
     int8_t, LayoutB,
-    int32_t, cutlass::layout::RowMajor,
+    int32_t, LayoutC,
     int32_t>;
 
   using GemmKernel = cutlass::gemm::kernel::GemmUniversal<
@@ -64,7 +64,8 @@ struct XE_Device_Gemm_s8_s8_s32_tensor_op_s32 {
 TEST(XE_Device_Gemm_s8t_s8t_s32t_tensor_op_s32, 256x256x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
@@ -72,21 +73,58 @@ TEST(XE_Device_Gemm_s8t_s8t_s32t_tensor_op_s32, 256x256x32) {
 TEST(XE_Device_Gemm_s8n_s8t_s32t_tensor_op_s32, 64x128x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
 TEST(XE_Device_Gemm_s8t_s8n_s32t_tensor_op_s32, 64x128x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
 TEST(XE_Device_Gemm_s8n_s8n_s32t_tensor_op_s32, 64x128x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+*/
+
+TEST(XE_Device_Gemm_s8t_s8t_s32n_tensor_op_s32, 256x256x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+/*  TODO(Codeplay): Transposed copy are not implemented
+TEST(XE_Device_Gemm_s8n_s8t_s32n_tensor_op_s32, 64x128x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+TEST(XE_Device_Gemm_s8t_s8n_s32n_tensor_op_s32, 64x128x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+TEST(XE_Device_Gemm_s8n_s8n_s32n_tensor_op_s32, 64x128x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 */

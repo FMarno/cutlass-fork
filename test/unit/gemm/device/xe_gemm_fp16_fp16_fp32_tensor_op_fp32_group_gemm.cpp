@@ -43,14 +43,13 @@
 
 namespace cutlass {
 namespace {
-template <typename LayoutA, typename LayoutB>
+template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm {
   using ProblemShape = cutlass::gemm::GroupProblemShape<cute::Shape<int,int,int>>; // <M,N,K> per group
   using ElementA = cute::half_t;
   using ElementB = cute::half_t;
   using ElementC = float;
   using ElementAccumulator = float;
-  using LayoutC = cutlass::layout::RowMajor;
 
   using Config = cutlass::gemm::device::DefaultGemmGroupConfiguration<
     cutlass::arch::OpClassTensorOp, cutlass::arch::IntelPVC,
@@ -69,7 +68,8 @@ struct XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm {
 TEST(XE_Device_Gemm_fp16t_fp16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
 }
@@ -77,7 +77,8 @@ TEST(XE_Device_Gemm_fp16t_fp16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 TEST(XE_Device_Gemm_fp16n_fp16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
 }
@@ -85,7 +86,8 @@ TEST(XE_Device_Gemm_fp16n_fp16t_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 TEST(XE_Device_Gemm_fp16t_fp16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
 }
@@ -93,7 +95,44 @@ TEST(XE_Device_Gemm_fp16t_fp16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
 TEST(XE_Device_Gemm_fp16n_fp16n_f32t_tensor_op_f32_group_gemm, 256x256x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_fp16t_fp16t_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_fp16n_fp16t_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_fp16t_fp16n_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
+  EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
+}
+
+TEST(XE_Device_Gemm_fp16n_fp16n_f32n_tensor_op_f32_group_gemm, 256x256x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_fp16_fp16_f32_tensor_op_f32_group_gemm<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 1.0));
   EXPECT_TRUE(test::gemm::device::TestAll<Gemm>(1.0, 0.0));
 }

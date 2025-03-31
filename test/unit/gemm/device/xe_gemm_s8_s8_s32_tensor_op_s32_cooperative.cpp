@@ -40,7 +40,7 @@
 #include "gemm_testbed_3x.hpp"
 namespace cutlass {
 namespace {
-template <typename LayoutA, typename LayoutB>
+template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative {
   using ElementA = int8_t;
   using ElementB = int8_t;
@@ -49,7 +49,7 @@ struct XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative {
     cutlass::arch::OpClassTensorOp, cutlass::arch::IntelPVC,
     ElementA, LayoutA,
     ElementB, LayoutB,
-    int32_t, cutlass::layout::RowMajor,
+    int32_t, LayoutC,
     int32_t>;
 
   using DispatchPolicy = cutlass::gemm::MainloopIntelPVC<3, cutlass::gemm::KernelPVCCooperative>;
@@ -75,7 +75,8 @@ struct XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative {
 TEST(XE_Device_Gemm_s8t_s8t_s32t_tensor_op_s32_cooperative, 64x128x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
   // TODO(Codeplay): Enable batch tests
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
 }
@@ -84,7 +85,8 @@ TEST(XE_Device_Gemm_s8t_s8t_s32t_tensor_op_s32_cooperative, 64x128x32) {
 TEST(XE_Device_Gemm_s8n_s8t_s32t_tensor_op_s32_cooperative, 64x128x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::RowMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
   // TODO(Codeplay): Enable batch tests
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
 }
@@ -92,7 +94,8 @@ TEST(XE_Device_Gemm_s8n_s8t_s32t_tensor_op_s32_cooperative, 64x128x32) {
 TEST(XE_Device_Gemm_s8t_s8n_s32t_tensor_op_s32_cooperative, 64x128x32) {
   using LayoutA = cutlass::layout::RowMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
   // TODO(Codeplay): Enable batch tests
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
 }
@@ -100,7 +103,46 @@ TEST(XE_Device_Gemm_s8t_s8n_s32t_tensor_op_s32_cooperative, 64x128x32) {
 TEST(XE_Device_Gemm_s8n_s8n_s32t_tensor_op_s32_cooperative, 64x128x32) {
   using LayoutA = cutlass::layout::ColumnMajor;
   using LayoutB = cutlass::layout::ColumnMajor;
-  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB>::Gemm;
+  using LayoutC = cutlass::layout::RowMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
+  // TODO(Codeplay): Enable batch tests
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
+}
+*/
+
+TEST(XE_Device_Gemm_s8t_s8t_s32n_tensor_op_s32_cooperative, 64x128x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
+  // TODO(Codeplay): Enable batch tests
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
+}
+
+/* TODO(Codeplay): Transposed copy are not implemented
+TEST(XE_Device_Gemm_s8n_s8t_s32n_tensor_op_s32_cooperative, 64x128x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::RowMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
+  // TODO(Codeplay): Enable batch tests
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
+}
+
+TEST(XE_Device_Gemm_s8t_s8n_s32n_tensor_op_s32_cooperative, 64x128x32) {
+  using LayoutA = cutlass::layout::RowMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::ColumnMajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
+  // TODO(Codeplay): Enable batch tests
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
+}
+
+TEST(XE_Device_Gemm_s8n_s8n_s32n_tensor_op_s32_cooperative, 64x128x32) {
+  using LayoutA = cutlass::layout::ColumnMajor;
+  using LayoutB = cutlass::layout::ColumnMajor;
+  using LayoutC = cutlass::layout::Columnmajor;
+  using Gemm = XE_Device_Gemm_s8_s8_s32_tensor_op_s32_cooperative<LayoutA, LayoutB, LayoutC>::Gemm;
   // TODO(Codeplay): Enable batch tests
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>(1.0, 0.0, false));
 }

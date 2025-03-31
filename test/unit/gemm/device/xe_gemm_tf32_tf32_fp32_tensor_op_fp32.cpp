@@ -45,13 +45,13 @@
 /* TODO(Codeplay): TF32 copy builtins don't work well with GEMM. Needs more investigation
 namespace cutlass {
 namespace {
-template <typename LayoutA, typename LayoutB>
+template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32 {
   using Config = cutlass::gemm::device::DefaultGemmConfigurationToCutlass3Types<
     cutlass::arch::OpClassTensorOp, cutlass::arch::IntelPVC,
     tfloat32_t, LayoutA,
     tfloat32_t, LayoutB,
-    float, cutlass::layout::RowMajor,
+    float, LayoutC,
     float>;
 
   using GemmKernel = cutlass::gemm::kernel::GemmUniversal<
@@ -65,7 +65,8 @@ struct XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32 {
 TEST(XE_Device_Gemm_tf32t_tf32t_f32t_tensor_op_f32, 256x256x32) {
   using LayoutA = RowMajor;
   using LayoutB = RowMajor;
-  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB>::Gemm;
+  using LayoutB = RowMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
@@ -73,21 +74,57 @@ TEST(XE_Device_Gemm_tf32t_tf32t_f32t_tensor_op_f32, 256x256x32) {
 TEST(XE_Device_Gemm_tf32n_tf32t_f32t_tensor_op_f32, 256x256x32) {
   using LayoutA = ColumnMajor;
   using LayoutB = RowMajor;
-  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB>::Gemm;
+  using LayoutB = RowMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
 TEST(XE_Device_Gemm_tf32t_tf32n_f32t_tensor_op_f32, 256x256x32) {
   using LayoutA = RowMajor;
   using LayoutB = ColumnMajor;
-  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB>::Gemm;
+  using LayoutB = RowMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 
 TEST(XE_Device_Gemm_tf32n_tf32n_f32t_tensor_op_f32, 256x256x32) {
   using LayoutA = ColumnMajor;
   using LayoutB = ColumnMajor;
-  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB>::Gemm;
+  using LayoutB = RowMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+TEST(XE_Device_Gemm_tf32t_tf32t_f32n_tensor_op_f32, 256x256x32) {
+  using LayoutA = RowMajor;
+  using LayoutB = RowMajor;
+  using LayoutB = ColumnMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+ TODO(Codeplay): missing copy transpose builtin and prefetch builtin
+TEST(XE_Device_Gemm_tf32n_tf32t_f32n_tensor_op_f32, 256x256x32) {
+  using LayoutA = ColumnMajor;
+  using LayoutB = RowMajor;
+  using LayoutB = ColumnMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+TEST(XE_Device_Gemm_tf32t_tf32n_f32n_tensor_op_f32, 256x256x32) {
+  using LayoutA = RowMajor;
+  using LayoutB = ColumnMajor;
+  using LayoutB = ColumnMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
+  EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
+}
+
+TEST(XE_Device_Gemm_tf32n_tf32n_f32n_tensor_op_f32, 256x256x32) {
+  using LayoutA = ColumnMajor;
+  using LayoutB = ColumnMajor;
+  using LayoutB = ColumnMajor;
+  using Gemm = XE_Device_Gemm_tf32_tf32_f32_tensor_op_f32<LayoutA, LayoutB, LayoutC>::Gemm;
   EXPECT_TRUE(test::gemm::device::TestXe<Gemm>());
 }
 }
