@@ -46,19 +46,58 @@ namespace cutlass {
 namespace {
 template <typename LayoutA, typename LayoutB, typename LayoutC>
 struct XE_Device_Gemm_bf16_bf16_f32_tensor_op_f32 {
-  using Config =
-    cutlass::gemm::device::DefaultGemmConfigurationToCutlass3Types<
-      cutlass::arch::OpClassTensorOp, cutlass::arch::IntelPVC,
-      cute::bfloat16_t, LayoutA,
-      cute::bfloat16_t, LayoutB,
-      float, LayoutC,
-      float>;
+  using ElementAccumulator = float;       // <- data type of accumulator
+  using ElementComputeEpilogue = float;   // <- data type of epilogue operations
+  using ElementInputA = cute::bfloat16_t; // <- data type of elements in input matrix A
+  using ElementInputB = cute::bfloat16_t; // <- data type of elements in input matrix B
+  using ElementOutput = float;            // <- data type of elements in output matrix D
+  using LayoutD = LayoutC;
+  static constexpr int AlignmentA = sizeof(ElementInputA);
+  static constexpr int AlignmentB = sizeof(ElementInputB);
+
+  using EpilogueDispatchPolicy = cutlass::epilogue::IntelPVCEpilogue;
+  using TileShape = Shape<_256, _256, _32>;
+  using TiledMma =
+      typename TiledMMAHelper<MMA_Atom<XE_8x16x16_F32BF16BF16F32_TT>, Layout<TileShape>,
+                                    Layout<Shape<_8, _4, _1>, Stride<_4, _1, _0>>>::TiledMMA;
+
+  using EpilogueOp = cutlass::epilogue::fusion::LinearCombination<
+    ElementOutput, ElementComputeEpilogue, ElementAccumulator, ElementAccumulator,
+    cutlass::FloatRoundStyle::round_to_nearest>;
+  using FusionCallBacks = cutlass::epilogue::fusion::FusionCallbacks<
+    EpilogueDispatchPolicy, EpilogueOp, TileShape, decltype(tile_shape(TiledMma()))>;
+
+  using CollectiveEpilogue = cutlass::epilogue::collective::CollectiveEpilogue<
+          EpilogueDispatchPolicy,
+          TileShape,
+          ElementAccumulator,
+          gemm::TagToStrideC_t<LayoutC>,
+          ElementOutput,
+          gemm::TagToStrideC_t<LayoutD>,
+          FusionCallBacks,
+          XE_2D_U32x16x8_LD_T, // loading C,
+          void, void,
+          XE_2D_U32x8x16_ST_N,
+          void, void>;
+
+  using GEMMDispatchPolicy = cutlass::gemm::MainloopIntelPVC<2>;
+  using CollectiveMainloop = cutlass::gemm::collective::CollectiveMma<
+          GEMMDispatchPolicy,
+          TileShape,
+          ElementInputA,
+          gemm::TagToStrideA_t<LayoutA>,
+          ElementInputB,
+          gemm::TagToStrideB_t<LayoutB>,
+          TiledMma,
+          GmemTiledCopyA, void, void, cute::identity,  // A
+          GmemTiledCopyB, void, void, cute::identity   // B
+  >;
 
   using Gemm = cutlass::gemm::device::GemmUniversalAdapter<
     cutlass::gemm::kernel::GemmUniversal<
       cute::Shape<int,int,int,int>,
-      typename Config::CollectiveMainloop,
-      typename Config::CollectiveEpilogue>>;
+      CollectiveMainloop,
+      CollectiveEpilogue>>;
 };
 
 TEST(XE_Device_Gemm_bf16t_bf16t_f32t_tensor_op_f32, 256x256x32) {
