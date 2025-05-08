@@ -251,7 +251,7 @@ struct ExampleRunner {
       cutlass::gemm::GemmUniversalMode::kGemm,
       problem_size,
       {block_A.get(), stride_A, block_B.get(), stride_B},
-      {{options.alpha, options.beta}, block_C.get(), stride_C, block_D.get(), stride_D},
+      {},//    {{options.alpha, options.beta}, block_C.get(), stride_C, block_D.get(), stride_D},
       hw_info
     };
 
@@ -374,8 +374,9 @@ int main(int argc, const char** argv)
   // (D = alpha * (A*B) + beta * C)
   // aside from the (A*B), which is handled by the GEMM. See 05_pvc_gemm_with_epilogues for more
   // complex epilogue examples.
-  using EpilogueOp = cutlass::epilogue::fusion::LinearCombination<ElementOutput, ElementComputeEpilogue,
-          ElementAccumulator, ElementAccumulator, cutlass::FloatRoundStyle::round_to_nearest>;
+  using EpilogueOp = cutlass::epilogue::fusion::Acc<ElementOutput>;
+  //cutlass::epilogue::fusion::LinearCombination<ElementOutput, ElementComputeEpilogue,
+          //ElementAccumulator, ElementAccumulator, cutlass::FloatRoundStyle::round_to_nearest>;
 
   // FusionCallbacks ties the EpilogueOp to an implementation (based on the dispatch
   // policy/architecture) and defines the epilogue arguments.

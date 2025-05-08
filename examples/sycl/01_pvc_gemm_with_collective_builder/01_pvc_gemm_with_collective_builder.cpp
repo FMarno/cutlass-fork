@@ -248,7 +248,7 @@ struct ExampleRunner {
       cutlass::gemm::GemmUniversalMode::kGemm,
       problem_size,
       {block_A.get(), stride_A, block_B.get(), stride_B},
-      {{options.alpha, options.beta}, block_C.get(), stride_C, block_D.get(), stride_D},
+      {{bfloat16_t(options.alpha), bfloat16_t(options.beta)}, block_C.get(), stride_C, block_D.get(), stride_D},
       hw_info
     };
 
@@ -267,7 +267,7 @@ struct ExampleRunner {
     syclcompat::wait();
 
     // Verify that the result is correct
-    bool passed = verify(problem_size, options.alpha, options.beta);
+    bool passed = verify(problem_size, bfloat16_t(options.alpha), bfloat16_t(options.beta));
     std::cout << "Disposition: " << (passed ? "Passed" : "Failed") << std::endl;
 
     if(!passed) return cutlass::Status::kErrorInternal;
@@ -327,11 +327,11 @@ int main(int argc, const char** argv)
 
   // The code section below describes datatype for input, output matrices and computation between
   // elements in input matrices.
-  using ElementAccumulator = float;     // <- data type of accumulator
-  using ElementComputeEpilogue = float; // <- data type of epilogue operations
+  using ElementAccumulator = bfloat16_t;     // <- data type of accumulator
+  using ElementComputeEpilogue = bfloat16_t; // <- data type of epilogue operations
   using ElementInputA = bfloat16_t;     // <- data type of elements in input matrix A
   using ElementInputB = bfloat16_t;     // <- data type of elements in input matrix B
-  using ElementOutput = float;          // <- data type of elements in output matrix D
+  using ElementOutput = bfloat16_t;          // <- data type of elements in output matrix D
 
   constexpr int AlignmentA = sizeof(ElementInputA);
   constexpr int AlignmentB = sizeof(ElementInputB);

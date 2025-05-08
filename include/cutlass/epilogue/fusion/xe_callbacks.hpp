@@ -54,6 +54,36 @@
 namespace cutlass::epilogue::fusion {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+///
+// D = alpha * acc
+template <
+  class ElementOutput_,
+  class CtaTileShapeMNK_,
+  class EpilogueTile_
+>
+struct FusionCallbacks<
+    epilogue::IntelXeXMX16,
+    fusion::Acc<ElementOutput_>,
+    CtaTileShapeMNK_,
+    EpilogueTile_
+> : Sm90AccFetch {
+  using Impl = Sm90AccFetch;
+  using Operation = fusion::Acc<ElementOutput_>;
+  using ElementOutput = ElementOutput_;
+  using ElementCompute = ElementOutput;
+
+  struct Arguments {
+
+    // Conversion to the args expected by the visitor implementation
+    // to_underlying_arguments will implicitly call this
+    operator typename Impl::Arguments() const {
+      return {};
+    }
+  };
+
+  // Ctor inheritance
+  using Impl::Impl;
+};
 
 template <
   class ElementOutput_,
