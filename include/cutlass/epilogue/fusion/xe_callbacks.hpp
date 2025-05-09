@@ -53,6 +53,11 @@
 
 namespace cutlass::epilogue::fusion {
 
+template< class ElementOutput>
+using XeAcc =
+  Sm90EVT<Sm90Compute<thread::Identity, ElementOutput, ElementOutput, FloatRoundStyle::round_to_nearest>,
+    Sm90AccFetch>;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 // D = alpha * acc
@@ -66,8 +71,8 @@ struct FusionCallbacks<
     fusion::Acc<ElementOutput_>,
     CtaTileShapeMNK_,
     EpilogueTile_
-> : Sm90AccFetch {
-  using Impl = Sm90AccFetch;
+> : XeAcc<ElementOutput_> {
+  using Impl = XeAcc<ElementOutput_>;
   using Operation = fusion::Acc<ElementOutput_>;
   using ElementOutput = ElementOutput_;
   using ElementCompute = ElementOutput;

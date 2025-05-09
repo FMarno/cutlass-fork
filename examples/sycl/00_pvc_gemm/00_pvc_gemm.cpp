@@ -251,7 +251,7 @@ struct ExampleRunner {
       cutlass::gemm::GemmUniversalMode::kGemm,
       problem_size,
       {block_A.get(), stride_A, block_B.get(), stride_B},
-      {},//    {{options.alpha, options.beta}, block_C.get(), stride_C, block_D.get(), stride_D},
+      {{}, nullptr, stride_C, block_D.get(), stride_D},//    {{options.alpha, options.beta}, block_C.get(), stride_C, block_D.get(), stride_D},
       hw_info
     };
 
