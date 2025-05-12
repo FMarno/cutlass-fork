@@ -89,15 +89,6 @@ struct FusionOperation {
   using GmemLayoutTagScalefactor = void;
 };
 
-// D = acc
-template<
-  class ElementOutput_
->
-struct Acc : FusionOperation {
-  using ElementOutput = ElementOutput_;
-  using ElementCompute = ElementOutput;
-};
-
 // D = alpha * acc
 template<
   class ElementOutput_,
